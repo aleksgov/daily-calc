@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import {View, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Animated, Text, Easing} from 'react-native';
+import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Animated, Text, Easing } from 'react-native';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 
@@ -9,17 +9,17 @@ const WAVE_HEIGHT = verticalScale(550);
 
 export default function App() {
     const scaleAnim = useRef(new Animated.Value(1)).current;
-    const translateY = useRef(new Animated.Value(verticalScale(220))).current;
+    const translateY = useRef(new Animated.Value(verticalScale(210))).current;
 
     const wavePath = useMemo(() => {
         return `
-            M0 ${WAVE_HEIGHT / 2}
-            Q ${width / 4} ${WAVE_HEIGHT / 2 - verticalScale(25)} ${width / 2} ${WAVE_HEIGHT / 2}
-            T ${width} ${WAVE_HEIGHT / 2}
-            L ${width} ${WAVE_HEIGHT}
-            L 0 ${WAVE_HEIGHT}
-            Z
-        `;
+      M0 ${WAVE_HEIGHT / 2}
+      Q ${width / 4} ${WAVE_HEIGHT / 2 - verticalScale(25)} ${width / 2} ${WAVE_HEIGHT / 2}
+      T ${width} ${WAVE_HEIGHT / 2}
+      L ${width} ${WAVE_HEIGHT}
+      L 0 ${WAVE_HEIGHT}
+      Z
+    `;
     }, []);
 
     const handleStart = useCallback(() => {
@@ -87,8 +87,29 @@ export default function App() {
             <View style={styles.waveContainer}>
                 <Svg width={width} height={WAVE_HEIGHT}>
                     <Path d={wavePath} fill="#3da0ee" />
+                    <SvgText
+                        x={moderateScale(30)}
+                        y={WAVE_HEIGHT / 2 + 90}
+                        textAnchor="start"
+                        fontSize={moderateScale(26)}
+                        fontWeight="600"
+                        fill="#ffffff"
+                    >
+                        открой для себя
+                    </SvgText>
+                    <SvgText
+                        x={moderateScale(30)}
+                        y={WAVE_HEIGHT / 2 + 125}
+                        textAnchor="start"
+                        fontSize={moderateScale(38)}
+                        fontWeight="bold"
+                        fill="#ffffff"
+                    >
+                        вкус здоровья!
+                    </SvgText>
                 </Svg>
             </View>
+
         </View>
     );
 }
@@ -123,7 +144,7 @@ const styles = StyleSheet.create({
     },
     headerText: {
         color: 'white',
-        fontSize: moderateScale(20),
+        fontSize: width > 400 ? moderateScale(24) : moderateScale(20),
         fontFamily: 'Montserrat',
         fontWeight: '700',
         letterSpacing: moderateScale(1),
