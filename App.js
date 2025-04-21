@@ -1,24 +1,25 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import {View, StyleSheet, TouchableWithoutFeedback, Dimensions, Alert, Animated, Text, Easing} from 'react-native';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 
 const { width } = Dimensions.get('window');
-const SUN_SIZE = 130;
-const WAVE_HEIGHT = 600;
+const SUN_SIZE = scale(130);
+const WAVE_HEIGHT = verticalScale(550);
 
 export default function App() {
     const scaleAnim = useRef(new Animated.Value(1)).current;
-    const translateY = useRef(new Animated.Value(220)).current;
+    const translateY = useRef(new Animated.Value(verticalScale(220))).current;
 
     const wavePath = useMemo(() => {
         return `
-      M0 ${WAVE_HEIGHT / 2 }
-      Q ${width / 4} ${WAVE_HEIGHT / 2 - 25} ${width / 2} ${WAVE_HEIGHT / 2 }
-      T ${width} ${WAVE_HEIGHT / 2 }
-      L ${width} ${WAVE_HEIGHT}
-      L 0 ${WAVE_HEIGHT}
-      Z
-    `;
+            M0 ${WAVE_HEIGHT / 2}
+            Q ${width / 4} ${WAVE_HEIGHT / 2 - verticalScale(25)} ${width / 2} ${WAVE_HEIGHT / 2}
+            T ${width} ${WAVE_HEIGHT / 2}
+            L ${width} ${WAVE_HEIGHT}
+            L 0 ${WAVE_HEIGHT}
+            Z
+        `;
     }, []);
 
     const handleStart = useCallback(() => {
@@ -73,7 +74,7 @@ export default function App() {
                             y="50%"
                             textAnchor="middle"
                             alignmentBaseline="middle"
-                            fontSize="24"
+                            fontSize={moderateScale(24)}
                             fontWeight="bold"
                             fill="#ffffff"
                         >
@@ -100,32 +101,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     headerContainer: {
-        width: 160,
-        height: 40,
+        width: scale(160),
+        height: verticalScale(40),
         position: 'absolute',
-        top: 60,
-        borderRadius: 75,
+        top: verticalScale(60),
+        borderRadius: moderateScale(75),
         zIndex: 2,
     },
     headerBackground: {
         width: '100%',
         height: '100%',
         backgroundColor: '#FFA834',
-        borderRadius: 75,
+        borderRadius: moderateScale(75),
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.25,
-        shadowRadius: 10,
+        shadowRadius: moderateScale(10),
         elevation: 5,
     },
     headerText: {
         color: 'white',
-        fontSize: 20,
+        fontSize: moderateScale(20),
         fontFamily: 'Montserrat',
         fontWeight: '700',
-        letterSpacing: 1,
+        letterSpacing: moderateScale(1),
     },
     sunWrapper: {
         width: SUN_SIZE,
