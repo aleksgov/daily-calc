@@ -1,10 +1,12 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Animated, Text, Easing } from 'react-native';
+import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Animated, Text, Easing, Image } from 'react-native';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import RAYS_IMAGE from './assets/images/sun-rays.png'
 
 const { width } = Dimensions.get('window');
 const SUN_SIZE = scale(130);
+const SUN_WRAPPER_SIZE = SUN_SIZE *  moderateScale(3.7);
 const WAVE_HEIGHT = verticalScale(550);
 
 export default function StartScreen({ navigation }) {
@@ -35,7 +37,7 @@ export default function StartScreen({ navigation }) {
                 useNativeDriver: true,
             }),
         ]).start(() => {
-            navigation.navigate('Quest');  // Переход на экран с именем "Next"
+            navigation.navigate('Quest');
         });
     }, [scaleAnim, navigation]);
 
@@ -47,18 +49,42 @@ export default function StartScreen({ navigation }) {
                 </View>
             </View>
 
-            <TouchableWithoutFeedback onPress={handleStart} accessibilityLabel="Начать" testID="start-button">
-                <Animated.View
-                    pointerEvents="box-none"
-                    style={[
-                        styles.sunWrapper,
-                        {
-                            transform: [
-                                { translateY: translateY },
-                                { scale: scaleAnim }
-                            ]
-                        }
-                    ]}
+            <Animated.View
+                style={[
+                    styles.sunWrapper,
+                    styles.raysWrapper,
+                    {
+                        transform: [
+                            { translateY: translateY },
+                            { scale: scaleAnim },
+                        ],
+                    },
+                ]}
+                pointerEvents="none"
+            >
+                <Image
+                    source={RAYS_IMAGE}
+                    style={styles.raysImage}
+                    resizeMode="contain"
+                />
+            </Animated.View>
+
+            <Animated.View
+                style={[
+                    styles.sunWrapper,
+                    styles.circleWrapper,
+                    {
+                        transform: [
+                            { translateY: translateY },
+                            { scale: scaleAnim },
+                        ],
+                    },
+                ]}
+            >
+                <TouchableWithoutFeedback
+                    onPress={handleStart}
+                    accessibilityLabel="Начать"
+                    testID="start-button"
                 >
                     <Svg width={SUN_SIZE} height={SUN_SIZE}>
                         <Circle
@@ -66,7 +92,6 @@ export default function StartScreen({ navigation }) {
                             cy={SUN_SIZE / 2}
                             r={SUN_SIZE / 2}
                             fill="#f3e626"
-                            accessibilityRole="image"
                         />
                         <SvgText
                             x="50%"
@@ -80,8 +105,8 @@ export default function StartScreen({ navigation }) {
                             Начать
                         </SvgText>
                     </Svg>
-                </Animated.View>
-            </TouchableWithoutFeedback>
+                </TouchableWithoutFeedback>
+            </Animated.View>
 
             <View style={styles.waveContainer}>
                 <Svg width={width} height={WAVE_HEIGHT}>
@@ -93,6 +118,7 @@ export default function StartScreen({ navigation }) {
                         fontSize={moderateScale(26)}
                         fontWeight="600"
                         fill="#ffffff"
+                        pointerEvents="none"
                     >
                         открой для себя
                     </SvgText>
@@ -148,15 +174,30 @@ const styles = StyleSheet.create({
         letterSpacing: moderateScale(1),
     },
     sunWrapper: {
-        width: SUN_SIZE,
-        height: SUN_SIZE,
+        width: SUN_WRAPPER_SIZE,
+        height: SUN_WRAPPER_SIZE,
+        justifyContent: 'center',
+        position: 'absolute',
+        top: verticalScale(-200),
+        alignItems: 'center',
         zIndex: 1,
+    },
+    raysImage: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+    },
+    raysWrapper: {
+        zIndex: 1,
+    },
+    circleWrapper: {
+        zIndex: 3,
     },
     waveContainer: {
         width: '100%',
         overflow: 'hidden',
         position: 'absolute',
         bottom: 0,
-        zIndex: 0,
+        zIndex: 2,
     },
 });
