@@ -3,12 +3,19 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image } from 'rea
 import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import {useNavigation} from "@react-navigation/native";
 
-import BlueArrow from './assets/images/blue-arrow.png';
-import GreenArrow from './assets/images/green-arrow.png';
-import RedArrow from './assets/images/red-arrow.png';
-import ManIcon from './assets/images/man-icon.png';
-import WomanIcon from './assets/images/woman-icon.png';
+import BlueArrow from './assets/images/QuestionScreen/arrow/blue-arrow.png';
+import GreenArrow from './assets/images/QuestionScreen/arrow/green-arrow.png';
+import RedArrow from './assets/images/QuestionScreen/arrow/red-arrow.png';
+import BackArrow from './assets/images/QuestionScreen/arrow/back-arrow.png';
+import ManIcon from './assets/images/QuestionScreen/gender/man-icon.png';
+import WomanIcon from './assets/images/QuestionScreen/gender/woman-icon.png';
+import SeatIcon from './assets/images/QuestionScreen/activity/sitting-icon.png';
+import WalkIcon from './assets/images/QuestionScreen/activity/walking-icon.png';
+import RunIcon from './assets/images/QuestionScreen/activity/running-icon.png';
+import SportIcon from './assets/images/QuestionScreen/activity/weightlifting-icon.png';
+
 
 const { width } = Dimensions.get('window');
 
@@ -41,10 +48,10 @@ const steps = [
     },
     { question: 'Ваш рост' },
     { question: 'Уровень физической активности:', options: [
-            { text: 'Минимальный (сидячий образ жизни)' },
-            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)' },
-            { text: 'Средний (3–5 тренировок в неделю)' },
-            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)' },
+            { text: 'Минимальный (сидячий образ жизни)', icon: SeatIcon },
+            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: WalkIcon, iconSize: 33 },
+            { text: 'Средний (3–5 тренировок в неделю)', icon: RunIcon },
+            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: SportIcon, iconSize: 38 },
         ]
     },
 ];
@@ -55,6 +62,7 @@ const MIN_HEIGHT = 30;
 const MAX_HEIGHT = 230;
 
 export default function QuestionScreen() {
+    const navigation = useNavigation();
     const [step, setStep] = useState(0);
     const totalSteps = steps.length;
     const [height, setHeight] = useState(130);
@@ -70,11 +78,25 @@ export default function QuestionScreen() {
 
     return (
         <View style={styles.container}>
-            <ProgressBar
-                progress={(step + 1) / totalSteps}
-                color="#3DA0EE"
-                style={styles.progress}
-            />
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => {
+                    if (step === 0) {
+                        console.log('Возврат на главный экран');
+                        navigation.goBack();
+                    } else {
+                        setStep(step - 1);
+                    }
+                }}>
+                    <Image source={BackArrow} style={styles.backArrow} />
+                </TouchableOpacity>
+
+                <ProgressBar
+                    progress={(step + 1) / totalSteps}
+                    color="#3DA0EE"
+                    style={styles.progress}
+                />
+            </View>
+
 
             <Text style={styles.question}>{steps[step].question}</Text>
 
@@ -86,7 +108,20 @@ export default function QuestionScreen() {
                         onPress={() => handleAnswer(option.text)}
                     >
                         <View style={styles.buttonContent}>
-                            {option.icon && <Image source={option.icon} style={styles.icon} />}
+                            {option.icon && (
+                                <View style={styles.iconContainer}>
+                                    <Image
+                                        source={option.icon}
+                                        style={[
+                                            styles.icon,
+                                            {
+                                                width: option.iconSize ? scale(option.iconSize) : styles.icon.width,
+                                                height: option.iconSize ? scale(option.iconSize) : styles.icon.height,
+                                            },
+                                        ]}
+                                    />
+                                </View>
+                            )}
                             <Text style={styles.buttonText}>{option.text}</Text>
                         </View>
                     </TouchableOpacity>
@@ -156,11 +191,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     progress: {
-        width: '95%',
+        width: scale(240),
         height: verticalScale(6),
         borderRadius: scale(5),
         marginBottom: verticalScale(30),
+        marginLeft: scale(15),
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
         marginLeft: scale(8),
+        marginBottom: scale(-50),
+    },
+    backArrow: {
+        width: scale(24),
+        height: scale(24),
+        marginRight: scale(10),
+        resizeMode: 'contain',
+        marginBottom: verticalScale(30),
     },
     question: {
         fontSize: moderateScale(28),
@@ -217,6 +265,13 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textAlign: 'center',
     },
+    iconContainer: {
+        width: scale(30),
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: scale(13),
+        marginRight: scale(17),
+    },
     icon: {
         width: scale(27),
         height: scale(27),
@@ -251,7 +306,7 @@ const styles = StyleSheet.create({
     },
     tick: {
         position: 'absolute',
-        width: scale(2),
+        width: scale(2.3),
         height: verticalScale(12),
         backgroundColor: '#3DA0EE',
         top: verticalScale(24),

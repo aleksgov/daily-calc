@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useRef } from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Animated, Text, Easing, Image } from 'react-native';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import RAYS_IMAGE from './assets/images/sun-rays.png'
+import RAYS_IMAGE from './assets/images/StartScreen/sun-rays.png'
 
 const { width } = Dimensions.get('window');
 const SUN_SIZE = scale(130);
