@@ -140,9 +140,7 @@ export default function QuestionScreen() {
                             onValueChange={setHeight}
                             minimumTrackTintColor="#3DA0EE"
                             maximumTrackTintColor="#C1C1C1"
-                            trackStyle={styles.track}
                             thumbTintColor="#3DA0EE"
-                            maximumTrackStyle={styles.track}
                         />
                         <View style={styles.ticksContainer}>
                             {sections.map((val, i) => {
@@ -279,6 +277,12 @@ const styles = StyleSheet.create({
         marginLeft: scale(10),
         resizeMode: 'contain',
     },
+    slider: {
+        width: '85%',
+        transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
+        marginLeft: 'auto',
+        marginRight: 'auto',
+    },
     sliderValue: {
         fontSize: moderateScale(20),
         textAlign: 'center',
@@ -289,13 +293,6 @@ const styles = StyleSheet.create({
         width: '100%',
         height: verticalScale(60),
         justifyContent: 'center',
-    },
-    track: {
-        height: verticalScale(12)
-    },
-    slider: {
-        width: '100%',
-        height: verticalScale(30),
     },
     ticksContainer: {
         position: 'absolute',
