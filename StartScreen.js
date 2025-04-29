@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Animated, Text, Easing, Image } from 'react-native';
 import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
@@ -6,12 +6,46 @@ import RAYS_IMAGE from './assets/images/StartScreen/sun-rays.png'
 
 const { width } = Dimensions.get('window');
 const SUN_SIZE = scale(130);
-const SUN_WRAPPER_SIZE = SUN_SIZE *  moderateScale(3.7);
+const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
 const WAVE_HEIGHT = verticalScale(550);
 
 export default function StartScreen({ navigation }) {
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
+    const rotateAnim = useRef(new Animated.Value(0)).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    // Анимация вращения лучей
+    useEffect(() => {
+        Animated.loop(
+            Animated.timing(rotateAnim, {
+                toValue: 1,
+                duration: 100000,
+                easing: Easing.linear,
+                useNativeDriver: true,
+            })
+        ).start();
+    }, []);
+
+    // Анимация пульсации
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1.05,
+                    duration: 2000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 2000,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ])
+        ).start();
+    }, []);
 
     const wavePath = useMemo(() => `
     M0 ${WAVE_HEIGHT / 2}
@@ -41,6 +75,11 @@ export default function StartScreen({ navigation }) {
         });
     }, [scaleAnim, navigation]);
 
+    const rotateInterpolate = rotateAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg']
+    });
+
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
@@ -56,7 +95,8 @@ export default function StartScreen({ navigation }) {
                     {
                         transform: [
                             { translateY: translateY },
-                            { scale: scaleAnim },
+                            { scale: pulseAnim },
+                            { rotate: rotateInterpolate },
                         ],
                     },
                 ]}

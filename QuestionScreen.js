@@ -104,7 +104,10 @@ export default function QuestionScreen() {
     const handleAnswer = (answer) => {
         console.log('Вы выбрали:', answer);
         if (step < totalSteps - 1) setStep(step + 1);
-        else console.log('Анкета завершена!');
+        else {
+            console.log('Анкета завершена!');
+            if (navigation) navigation.navigate('Calculation');
+        }
     };
 
     return (
