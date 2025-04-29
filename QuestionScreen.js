@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, PanResponder } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import {useNavigation} from "@react-navigation/native";
+import { useNavigation } from '@react-navigation/native';
 
+// Стрелки
 import BlueArrow from './assets/images/QuestionScreen/arrow/blue-arrow.png';
 import GreenArrow from './assets/images/QuestionScreen/arrow/green-arrow.png';
 import RedArrow from './assets/images/QuestionScreen/arrow/red-arrow.png';
 import BackArrow from './assets/images/QuestionScreen/arrow/back-arrow.png';
+
+// Иконки для гендера
 import ManIcon from './assets/images/QuestionScreen/gender/man-icon.png';
 import WomanIcon from './assets/images/QuestionScreen/gender/woman-icon.png';
+
+// Иконки для активности
 import SeatIcon from './assets/images/QuestionScreen/activity/sitting-icon.png';
 import WalkIcon from './assets/images/QuestionScreen/activity/walking-icon.png';
 import RunIcon from './assets/images/QuestionScreen/activity/running-icon.png';
 import SportIcon from './assets/images/QuestionScreen/activity/weightlifting-icon.png';
 
+// Иконки для возраста
+import ChildIcon from './assets/images/QuestionScreen/age/child.png';
+import YouthIcon from './assets/images/QuestionScreen/age/youth.png';
+import AdultIcon from './assets/images/QuestionScreen/age/adult.png';
+import MiddleIcon from './assets/images/QuestionScreen/age/middle.png';
+import SeniorIcon from './assets/images/QuestionScreen/age/senior.png';
 
 const { width } = Dimensions.get('window');
 
@@ -38,25 +49,18 @@ const steps = [
             { text: 'Женский', icon: WomanIcon },
         ]
     },
-    { question: 'Ваш возраст', options: [
-            { text: 'До 18 лет' },
-            { text: '18-25 лет' },
-            { text: '26-35 лет' },
-            { text: '36-50 лет' },
-            { text: 'Старше 50 лет' },
-        ]
-    },
+    { question: 'Ваш возраст' },
     { question: 'Ваш рост' },
     { question: 'Уровень физической активности:', options: [
             { text: 'Минимальный (сидячий образ жизни)', icon: SeatIcon },
-            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: WalkIcon, iconSize: 33 },
+            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: WalkIcon, iconSize: 38 },
             { text: 'Средний (3–5 тренировок в неделю)', icon: RunIcon },
-            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: SportIcon, iconSize: 38 },
+            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: SportIcon, iconSize: 48 },
         ]
     },
 ];
 
-// Точки разбиения для визуальных меток
+// Секции для слайдера роста
 const sections = [30, 80, 130, 180, 230];
 const MIN_HEIGHT = 30;
 const MAX_HEIGHT = 230;
@@ -67,25 +71,48 @@ export default function QuestionScreen() {
     const totalSteps = steps.length;
     const [height, setHeight] = useState(130);
 
+    // Настройки для выбора возраста
+    const ageStepIndex = 3;
+    const ageOptions = [
+        { label: 'До 18 лет', icon: ChildIcon },
+        { label: '18-25 лет', icon: YouthIcon },
+        { label: '26-35 лет', icon: AdultIcon },
+        { label: '36-50 лет', icon: MiddleIcon },
+        { label: 'Старше 50 лет', icon: SeniorIcon },
+    ];
+    const [ageIndex, setAgeIndex] = useState(0);
+
+    // Обработчики свайпов для выбора возраста
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20,
+            onPanResponderRelease: (_, gesture) => {
+                if (gesture.dx < -20) handleNextAge();
+                else if (gesture.dx > 20) handlePrevAge();
+            },
+        })
+    ).current;
+
+    const handleNextAge = () => {
+        setAgeIndex((prev) => (prev + 1) % ageOptions.length);
+    };
+    const handlePrevAge = () => {
+        setAgeIndex((prev) => (prev - 1 + ageOptions.length) % ageOptions.length);
+    };
+    const confirmAge = () => handleAnswer(ageOptions[ageIndex].label);
+
     const handleAnswer = (answer) => {
         console.log('Вы выбрали:', answer);
-        if (step < totalSteps - 1) {
-            setStep(step + 1);
-        } else {
-            console.log('Анкета завершена!');
-        }
+        if (step < totalSteps - 1) setStep(step + 1);
+        else console.log('Анкета завершена!');
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => {
-                    if (step === 0) {
-                        console.log('Возврат на главный экран');
-                        navigation.goBack();
-                    } else {
-                        setStep(step - 1);
-                    }
+                    if (step === 0) navigation.goBack();
+                    else setStep(step - 1);
                 }}>
                     <Image source={BackArrow} style={styles.backArrow} />
                 </TouchableOpacity>
@@ -97,10 +124,25 @@ export default function QuestionScreen() {
                 />
             </View>
 
-
             <Text style={styles.question}>{steps[step].question}</Text>
 
-            {steps[step].options ? (
+            {step === ageStepIndex ? (
+                <View style={styles.ageContainer} {...panResponder.panHandlers}>
+                    <Image source={ageOptions[ageIndex].icon} style={styles.ageImage} />
+                    <View style={styles.ageLabelContainer}>
+                        <TouchableOpacity onPress={handlePrevAge} style={styles.arrowTouchable}>
+                            <Text style={styles.ageArrow}>{'<'}</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.ageLabel}>{ageOptions[ageIndex].label}</Text>
+                        <TouchableOpacity onPress={handleNextAge} style={styles.arrowTouchable}>
+                            <Text style={styles.ageArrow}>{'>'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <TouchableOpacity style={styles.confirmButton} onPress={confirmAge}>
+                        <Text style={styles.confirmButtonText}>Подтвердить</Text>
+                    </TouchableOpacity>
+                </View>
+            ) : steps[step].options ? (
                 steps[step].options.map((option, idx) => (
                     <TouchableOpacity
                         key={idx}
@@ -127,9 +169,9 @@ export default function QuestionScreen() {
                     </TouchableOpacity>
                 ))
             ) : (
+                // Слайдер для роста
                 <View>
                     <Text style={styles.sliderValue}>{height} см</Text>
-
                     <View style={styles.sliderWrapper}>
                         <Slider
                             style={styles.slider}
@@ -160,15 +202,12 @@ export default function QuestionScreen() {
                                                 styles.tickLabel,
                                                 { left: `${leftPercent}%` }
                                             ]}
-                                        >
-                                            {val}
-                                        </Text>
+                                        >{val}</Text>
                                     </React.Fragment>
                                 );
                             })}
                         </View>
                     </View>
-
                     <TouchableOpacity
                         style={styles.growButton}
                         onPress={() => handleAnswer(`${height} см`)}
@@ -244,6 +283,12 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 2,
     },
+    growButtonText: {
+        color: '#000',
+        fontSize: moderateScale(18),
+        fontWeight: '600',
+        textAlign: 'center',
+    },
     buttonContent: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -257,12 +302,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
         flex: 1,
     },
-    growButtonText: {
-        color: '#000',
-        fontSize: moderateScale(18),
-        fontWeight: '600',
-        textAlign: 'center',
-    },
     iconContainer: {
         width: scale(30),
         justifyContent: 'center',
@@ -271,11 +310,56 @@ const styles = StyleSheet.create({
         marginRight: scale(17),
     },
     icon: {
-        width: scale(27),
-        height: scale(27),
+        width: scale(32),
+        height: scale(32),
         marginRight: scale(17),
         marginLeft: scale(10),
         resizeMode: 'contain',
+    },
+    ageContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: scale(160),
+    },
+    ageImage: {
+        width: width * 0.5,
+        height: width * 0.5,
+        resizeMode: 'contain',
+        marginBottom: verticalScale(20),
+    },
+    ageLabelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: verticalScale(25),
+    },
+    arrowTouchable: {
+        paddingHorizontal: scale(20),
+    },
+    ageArrow: {
+        fontSize: moderateScale(24),
+        fontWeight: '600',
+    },
+    ageLabel: {
+        fontSize: moderateScale(20),
+        fontWeight: '500',
+        textAlign: 'center',
+    },
+    confirmButton: {
+        backgroundColor: '#ffffff',
+        paddingVertical: verticalScale(16),
+        paddingHorizontal: scale(40),
+        borderRadius: scale(15),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    confirmButtonText: {
+        color: '#000',
+        fontSize: moderateScale(18),
+        fontWeight: '600',
     },
     slider: {
         width: '85%',
