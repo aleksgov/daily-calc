@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, PanResponder, Animated } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
@@ -22,11 +22,19 @@ import RunIcon from './assets/images/QuestionScreen/activity/running-icon.png';
 import SportIcon from './assets/images/QuestionScreen/activity/weightlifting-icon.png';
 
 // Иконки для возраста
-import ChildIcon from './assets/images/QuestionScreen/age/child.png';
-import YouthIcon from './assets/images/QuestionScreen/age/youth.png';
-import AdultIcon from './assets/images/QuestionScreen/age/adult.png';
-import MiddleIcon from './assets/images/QuestionScreen/age/middle.png';
-import SeniorIcon from './assets/images/QuestionScreen/age/senior.png';
+// (мужские)
+import ChildMIcon from './assets/images/QuestionScreen/age/man/child-man.png';
+import YouthMIcon from './assets/images/QuestionScreen/age/man/youth-man.png';
+import AdultMIcon from './assets/images/QuestionScreen/age/man/adult-man.png';
+import MiddleMIcon from './assets/images/QuestionScreen/age/man/middle-man.png';
+import SeniorMIcon from './assets/images/QuestionScreen/age/man/senior-man.png';
+
+// (женские)
+import ChildWIcon from './assets/images/QuestionScreen/age/woman/child-woman.png';
+import YouthWIcon from './assets/images/QuestionScreen/age/woman/youth-woman.png';
+import AdultWIcon from './assets/images/QuestionScreen/age/woman/adult-woman.png';
+import MiddleWIcon from './assets/images/QuestionScreen/age/woman/middle-woman.png';
+import SeniorWIcon from './assets/images/QuestionScreen/age/woman/senior-woman.png';
 
 const { width } = Dimensions.get('window');
 
@@ -73,13 +81,26 @@ export default function QuestionScreen() {
     const [ageIndex, setAgeIndex] = useState(0);
 
     const ageStepIndex = 3;
-    const ageOptions = [
-        { label: 'До 18 лет', icon: ChildIcon },
-        { label: '18-25 лет', icon: YouthIcon },
-        { label: '26-35 лет', icon: AdultIcon },
-        { label: '36-50 лет', icon: MiddleIcon },
-        { label: 'Старше 50 лет', icon: SeniorIcon },
-    ];
+
+    const getAgeOptions = (gender) => {
+        if (gender === 'Женский') {
+            return [
+                { label: 'До 18 лет', icon: ChildWIcon },
+                { label: '18-25 лет', icon: YouthWIcon },
+                { label: '26-35 лет', icon: AdultWIcon },
+                { label: '36-50 лет', icon: MiddleWIcon },
+                { label: 'Старше 50 лет', icon: SeniorWIcon },
+            ];
+        } else {
+            return [
+                { label: 'До 18 лет', icon: ChildMIcon },
+                { label: '18-25 лет', icon: YouthMIcon },
+                { label: '26-35 лет', icon: AdultMIcon },
+                { label: '36-50 лет', icon: MiddleMIcon },
+                { label: 'Старше 50 лет', icon: SeniorMIcon },
+            ];
+        }
+    };
 
     const panResponder = useRef(
         PanResponder.create({
@@ -99,14 +120,28 @@ export default function QuestionScreen() {
     };
     const confirmAge = () => handleAnswer(ageOptions[ageIndex].label);
 
+    useEffect(() => {
+        if (step === ageStepIndex) {
+            setAgeIndex(0);
+        }
+    }, [step]);
+
     const handleAnswer = (answer) => {
         console.log('Вы выбрали:', answer);
+        setSelectedAnswers(prev => ({
+            ...prev,
+            [step]: answer
+        }));
+
         if (step < totalSteps - 1) setStep(step + 1);
         else {
             console.log('Анкета завершена!');
             if (navigation) navigation.navigate('Calculation');
         }
     };
+
+    const selectedGender = selectedAnswers[2] || 'Мужской'; // Значение по умолчанию
+    const ageOptions = getAgeOptions(selectedGender);
 
     return (
         <View style={styles.container}>
@@ -126,7 +161,10 @@ export default function QuestionScreen() {
 
             {step === ageStepIndex ? (
                 <View style={styles.ageContainer} {...panResponder.panHandlers}>
-                    <Image source={ageOptions[ageIndex].icon} style={styles.ageImage} />
+                    <Image
+                        source={ageOptions[ageIndex].icon}
+                        style={styles.ageImage}
+                    />
                     <View style={styles.ageLabelContainer}>
                         <TouchableOpacity onPress={handlePrevAge} style={styles.arrowTouchable}>
                             <Text style={styles.ageArrow}>{'<'}</Text>

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Animated, Text, Easing, Image } from 'react-native';
+import { View, StyleSheet, Dimensions, Animated, Text, Easing } from 'react-native';
 import Svg, { Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import Sun from './Sun';

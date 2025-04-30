@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useFonts, NotoSans_500Medium, NotoSans_700Bold } from '@expo-google-fonts/noto-sans';
 import { useNavigation } from '@react-navigation/native';
 import Sun from "./Sun";
@@ -27,7 +27,7 @@ export default function SunScreen() {
     return (
         <View style={styles.container}>
             <Sun
-                label="Посмотреть план"
+                label={`Посмотреть\nплан`}
                 onStart={handleStart}
             />
         </View>

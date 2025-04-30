@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, TouchableWithoutFeedback, Easing } from 'react-native';
-import Svg, { Circle, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Text as SvgText, TSpan } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import RAYS_IMAGE from './assets/images/StartScreen/sun-rays.png';
 
@@ -43,8 +43,10 @@ export default function Sun({ onStart, label }) {
 
     const rotateInterpolate = rotateAnim.interpolate({
         inputRange: [0, 1],
-        outputRange: ['0deg', '360deg']
+        outputRange: ['0deg', '360deg'],
     });
+
+    const lines = Array.isArray(label) ? label : label.split('\n');
 
     return (
         <>
@@ -111,7 +113,15 @@ export default function Sun({ onStart, label }) {
                             fontWeight="bold"
                             fill="#ffffff"
                         >
-                            {label}
+                            {lines.map((line, i) => (
+                                <TSpan
+                                    key={i}
+                                    x="50%"
+                                    dy={i === 0 ? -moderateScale(12) : moderateScale(24)}
+                                >
+                                    {line}
+                                </TSpan>
+                            ))}
                         </SvgText>
                     </Svg>
                 </TouchableWithoutFeedback>
