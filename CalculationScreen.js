@@ -19,7 +19,7 @@ export default function CalculationScreen({ navigation }) {
     useEffect(() => {
         if (progress >= 1) {
             setTimeout(() => {
-                navigation.replace('Start');
+                navigation.replace('Sun');
             }, 1000);
             return;
         }

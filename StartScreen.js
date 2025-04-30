@@ -1,12 +1,10 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback, Dimensions, Animated, Text, Easing, Image } from 'react-native';
-import Svg, { Circle, Path, Text as SvgText } from 'react-native-svg';
+import Svg, { Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import RAYS_IMAGE from './assets/images/StartScreen/sun-rays.png'
+import Sun from './Sun';
 
 const { width } = Dimensions.get('window');
-const SUN_SIZE = scale(130);
-const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
 const WAVE_HEIGHT = verticalScale(550);
 
 export default function StartScreen({ navigation }) {
@@ -15,7 +13,6 @@ export default function StartScreen({ navigation }) {
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
-    // Анимация вращения лучей
     useEffect(() => {
         Animated.loop(
             Animated.timing(rotateAnim, {
@@ -27,7 +24,6 @@ export default function StartScreen({ navigation }) {
         ).start();
     }, []);
 
-    // Анимация пульсации
     useEffect(() => {
         Animated.loop(
             Animated.sequence([
@@ -71,14 +67,10 @@ export default function StartScreen({ navigation }) {
                 useNativeDriver: true,
             }),
         ]).start(() => {
+            console.log("Кнопка нажата");
             navigation.navigate('Quest');
         });
     }, [scaleAnim, navigation]);
-
-    const rotateInterpolate = rotateAnim.interpolate({
-        inputRange: [0, 1],
-        outputRange: ['0deg', '360deg']
-    });
 
     return (
         <View style={styles.container}>
@@ -88,65 +80,14 @@ export default function StartScreen({ navigation }) {
                 </View>
             </View>
 
-            <Animated.View
-                style={[
-                    styles.sunWrapper,
-                    styles.raysWrapper,
-                    {
-                        transform: [
-                            { translateY: translateY },
-                            { scale: pulseAnim },
-                            { rotate: rotateInterpolate },
-                        ],
-                    },
-                ]}
-                pointerEvents="none"
-            >
-                <Image
-                    source={RAYS_IMAGE}
-                    style={styles.raysImage}
-                    resizeMode="contain"
-                />
-            </Animated.View>
-
-            <Animated.View
-                style={[
-                    styles.sunWrapper,
-                    styles.circleWrapper,
-                    {
-                        transform: [
-                            { translateY: translateY },
-                            { scale: scaleAnim },
-                        ],
-                    },
-                ]}
-            >
-                <TouchableWithoutFeedback
-                    onPress={handleStart}
-                    accessibilityLabel="Начать"
-                    testID="start-button"
-                >
-                    <Svg width={SUN_SIZE} height={SUN_SIZE}>
-                        <Circle
-                            cx={SUN_SIZE / 2}
-                            cy={SUN_SIZE / 2}
-                            r={SUN_SIZE / 2}
-                            fill="#f3e626"
-                        />
-                        <SvgText
-                            x="50%"
-                            y="50%"
-                            textAnchor="middle"
-                            alignmentBaseline="middle"
-                            fontSize={moderateScale(24)}
-                            fontWeight="bold"
-                            fill="#ffffff"
-                        >
-                            Начать
-                        </SvgText>
-                    </Svg>
-                </TouchableWithoutFeedback>
-            </Animated.View>
+            <Sun
+                label="Начать"
+                onStart={handleStart}
+                scaleAnim={scaleAnim}
+                rotateAnim={rotateAnim}
+                pulseAnim={pulseAnim}
+                translateY={translateY}
+            />
 
             <View style={styles.waveContainer}>
                 <Svg width={width} height={WAVE_HEIGHT}>
@@ -212,26 +153,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat',
         fontWeight: '700',
         letterSpacing: moderateScale(1.2),
-    },
-    sunWrapper: {
-        width: SUN_WRAPPER_SIZE,
-        height: SUN_WRAPPER_SIZE,
-        justifyContent: 'center',
-        position: 'absolute',
-        top: verticalScale(-200),
-        alignItems: 'center',
-        zIndex: 1,
-    },
-    raysImage: {
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-    },
-    raysWrapper: {
-        zIndex: 1,
-    },
-    circleWrapper: {
-        zIndex: 3,
     },
     waveContainer: {
         width: '100%',
