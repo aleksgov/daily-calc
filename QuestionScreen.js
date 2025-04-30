@@ -1,24 +1,27 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, PanResponder } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, PanResponder, Animated } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 
-// Импорты изображений
+// Стрелки
 import BlueArrow from './assets/images/QuestionScreen/arrow/blue-arrow.png';
 import GreenArrow from './assets/images/QuestionScreen/arrow/green-arrow.png';
 import RedArrow from './assets/images/QuestionScreen/arrow/red-arrow.png';
 import BackArrow from './assets/images/QuestionScreen/arrow/back-arrow.png';
 
+// Иконки для гендера
 import ManIcon from './assets/images/QuestionScreen/gender/man-icon.png';
 import WomanIcon from './assets/images/QuestionScreen/gender/woman-icon.png';
 
+// Иконки для активности
 import SeatIcon from './assets/images/QuestionScreen/activity/sitting-icon.png';
 import WalkIcon from './assets/images/QuestionScreen/activity/walking-icon.png';
 import RunIcon from './assets/images/QuestionScreen/activity/running-icon.png';
 import SportIcon from './assets/images/QuestionScreen/activity/weightlifting-icon.png';
 
+// Иконки для возраста
 import ChildIcon from './assets/images/QuestionScreen/age/child.png';
 import YouthIcon from './assets/images/QuestionScreen/age/youth.png';
 import AdultIcon from './assets/images/QuestionScreen/age/adult.png';
@@ -97,9 +100,12 @@ export default function QuestionScreen() {
     const confirmAge = () => handleAnswer(ageOptions[ageIndex].label);
 
     const handleAnswer = (answer) => {
-        setSelectedAnswers(prev => ({ ...prev, [step]: answer }));
+        console.log('Вы выбрали:', answer);
         if (step < totalSteps - 1) setStep(step + 1);
-        else navigation.navigate('Calculation');
+        else {
+            console.log('Анкета завершена!');
+            if (navigation) navigation.navigate('Calculation');
+        }
     };
 
     return (
