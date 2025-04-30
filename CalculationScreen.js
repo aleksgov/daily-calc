@@ -54,7 +54,7 @@ export default function CalculationScreen({ navigation }) {
                     progress={progress}
                     size={width * 0.5}
                     thickness={8}
-                    color="#FFD700"
+                    color="#F3E626"
                     unfilledColor="#F5F5F5"
                     borderWidth={0}
                     showsText={true}

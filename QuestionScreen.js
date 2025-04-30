@@ -5,23 +5,20 @@ import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 
-// Стрелки
+// Импорты изображений
 import BlueArrow from './assets/images/QuestionScreen/arrow/blue-arrow.png';
 import GreenArrow from './assets/images/QuestionScreen/arrow/green-arrow.png';
 import RedArrow from './assets/images/QuestionScreen/arrow/red-arrow.png';
 import BackArrow from './assets/images/QuestionScreen/arrow/back-arrow.png';
 
-// Иконки для гендера
 import ManIcon from './assets/images/QuestionScreen/gender/man-icon.png';
 import WomanIcon from './assets/images/QuestionScreen/gender/woman-icon.png';
 
-// Иконки для активности
 import SeatIcon from './assets/images/QuestionScreen/activity/sitting-icon.png';
 import WalkIcon from './assets/images/QuestionScreen/activity/walking-icon.png';
 import RunIcon from './assets/images/QuestionScreen/activity/running-icon.png';
 import SportIcon from './assets/images/QuestionScreen/activity/weightlifting-icon.png';
 
-// Иконки для возраста
 import ChildIcon from './assets/images/QuestionScreen/age/child.png';
 import YouthIcon from './assets/images/QuestionScreen/age/youth.png';
 import AdultIcon from './assets/images/QuestionScreen/age/adult.png';
@@ -60,7 +57,6 @@ const steps = [
     },
 ];
 
-// Секции для слайдера роста
 const sections = [30, 80, 130, 180, 230];
 const MIN_HEIGHT = 30;
 const MAX_HEIGHT = 230;
@@ -70,8 +66,9 @@ export default function QuestionScreen() {
     const [step, setStep] = useState(0);
     const totalSteps = steps.length;
     const [height, setHeight] = useState(130);
+    const [selectedAnswers, setSelectedAnswers] = useState({});
+    const [ageIndex, setAgeIndex] = useState(0);
 
-    // Настройки для выбора возраста
     const ageStepIndex = 3;
     const ageOptions = [
         { label: 'До 18 лет', icon: ChildIcon },
@@ -80,9 +77,7 @@ export default function QuestionScreen() {
         { label: '36-50 лет', icon: MiddleIcon },
         { label: 'Старше 50 лет', icon: SeniorIcon },
     ];
-    const [ageIndex, setAgeIndex] = useState(0);
 
-    // Обработчики свайпов для выбора возраста
     const panResponder = useRef(
         PanResponder.create({
             onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20,
@@ -102,21 +97,15 @@ export default function QuestionScreen() {
     const confirmAge = () => handleAnswer(ageOptions[ageIndex].label);
 
     const handleAnswer = (answer) => {
-        console.log('Вы выбрали:', answer);
+        setSelectedAnswers(prev => ({ ...prev, [step]: answer }));
         if (step < totalSteps - 1) setStep(step + 1);
-        else {
-            console.log('Анкета завершена!');
-            if (navigation) navigation.navigate('Calculation');
-        }
+        else navigation.navigate('Calculation');
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => {
-                    if (step === 0) navigation.goBack();
-                    else setStep(step - 1);
-                }}>
+                <TouchableOpacity onPress={() => step > 0 ? setStep(step - 1) : navigation.goBack()}>
                     <Image source={BackArrow} style={styles.backArrow} />
                 </TouchableOpacity>
 
@@ -141,38 +130,54 @@ export default function QuestionScreen() {
                             <Text style={styles.ageArrow}>{'>'}</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.confirmButton} onPress={confirmAge}>
+                    <TouchableOpacity
+                        style={[
+                            styles.confirmButton,
+                            selectedAnswers[step] === ageOptions[ageIndex].label && styles.selectedConfirmButton
+                        ]}
+                        onPress={confirmAge}>
                         <Text style={styles.confirmButtonText}>Подтвердить</Text>
                     </TouchableOpacity>
                 </View>
             ) : steps[step].options ? (
-                steps[step].options.map((option, idx) => (
-                    <TouchableOpacity
-                        key={idx}
-                        style={styles.button}
-                        onPress={() => handleAnswer(option.text)}
-                    >
-                        <View style={styles.buttonContent}>
-                            {option.icon && (
-                                <View style={styles.iconContainer}>
-                                    <Image
-                                        source={option.icon}
-                                        style={[
-                                            styles.icon,
-                                            {
-                                                width: option.iconSize ? scale(option.iconSize) : styles.icon.width,
-                                                height: option.iconSize ? scale(option.iconSize) : styles.icon.height,
-                                            },
-                                        ]}
-                                    />
-                                </View>
-                            )}
-                            <Text style={styles.buttonText}>{option.text}</Text>
-                        </View>
-                    </TouchableOpacity>
-                ))
+                steps[step].options.map((option, idx) => {
+                    const isSelected = selectedAnswers[step] === option.text;
+                    return (
+                        <TouchableOpacity
+                            key={idx}
+                            style={[
+                                styles.button,
+                                isSelected && styles.selectedButton
+                            ]}
+                            onPress={() => handleAnswer(option.text)}
+                        >
+                            <View style={styles.buttonContent}>
+                                {option.icon && (
+                                    <View style={styles.iconContainer}>
+                                        <Image
+                                            source={option.icon}
+                                            style={[
+                                                styles.icon,
+                                                {
+                                                    width: option.iconSize ? scale(option.iconSize) : styles.icon.width,
+                                                    height: option.iconSize ? scale(option.iconSize) : styles.icon.height,
+                                                    tintColor: isSelected ? '#fff' : null
+                                                },
+                                            ]}
+                                        />
+                                    </View>
+                                )}
+                                <Text style={[
+                                    styles.buttonText,
+                                    isSelected && styles.selectedButtonText
+                                ]}>
+                                    {option.text}
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    );
+                })
             ) : (
-                // Слайдер для роста
                 <View>
                     <Text style={styles.sliderValue}>{height} см</Text>
                     <View style={styles.sliderWrapper}>
@@ -190,7 +195,7 @@ export default function QuestionScreen() {
                         <View style={styles.ticksContainer}>
                             {sections.map((val, i) => {
                                 const leftPercent = ((val - MIN_HEIGHT) / (MAX_HEIGHT - MIN_HEIGHT)) * 96 + 2;
-                                const isEdge = i === 0 || i === sections.length - 1;  // крайние точки
+                                const isEdge = i === 0 || i === sections.length - 1;
                                 return (
                                     <React.Fragment key={i}>
                                         <View
@@ -212,7 +217,10 @@ export default function QuestionScreen() {
                         </View>
                     </View>
                     <TouchableOpacity
-                        style={styles.growButton}
+                        style={[
+                            styles.growButton,
+                            selectedAnswers[step] === `${height} см` && styles.selectedGrowButton
+                        ]}
                         onPress={() => handleAnswer(`${height} см`)}
                     >
                         <Text style={styles.growButtonText}>Подтвердить</Text>
@@ -230,13 +238,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: scale(20),
         backgroundColor: '#fff',
     },
-    progress: {
-        width: scale(240),
-        height: verticalScale(6),
-        borderRadius: scale(5),
-        marginBottom: verticalScale(30),
-        marginLeft: scale(15),
-    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -249,6 +250,13 @@ const styles = StyleSheet.create({
         marginRight: scale(10),
         resizeMode: 'contain',
         marginBottom: verticalScale(30),
+    },
+    progress: {
+        width: scale(240),
+        height: verticalScale(6),
+        borderRadius: scale(5),
+        marginBottom: verticalScale(30),
+        marginLeft: scale(15),
     },
     question: {
         fontSize: moderateScale(28),
@@ -266,31 +274,17 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(27),
         marginLeft: scale(8),
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 2,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
     },
-    growButton: {
-        width: '95%',
-        backgroundColor: '#ffffff',
-        paddingVertical: verticalScale(16),
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        marginTop: scale(20),
-        borderRadius: scale(15),
-        marginBottom: verticalScale(27),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 2,
-    },
-    growButtonText: {
-        color: '#000',
-        fontSize: moderateScale(18),
-        fontWeight: '600',
-        textAlign: 'center',
+    selectedButton: {
+        backgroundColor: '#3DA0EE',
+        shadowColor: '#3DA0EE',
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 6,
     },
     buttonContent: {
         flexDirection: 'row',
@@ -304,6 +298,9 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         flexShrink: 1,
         flex: 1,
+    },
+    selectedButtonText: {
+        color: '#ffffff',
     },
     iconContainer: {
         width: scale(30),
@@ -354,10 +351,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: scale(40),
         borderRadius: scale(15),
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-        elevation: 2,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    selectedConfirmButton: {
+        backgroundColor: '#3DA0EE',
+        shadowColor: '#3DA0EE',
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 6,
     },
     confirmButtonText: {
         color: '#000',
@@ -410,5 +414,33 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#000000',
         transform: [{ translateX: -scale(8) }],
+    },
+    growButton: {
+        width: '95%',
+        backgroundColor: '#ffffff',
+        paddingVertical: verticalScale(16),
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        marginTop: scale(20),
+        borderRadius: scale(15),
+        marginBottom: verticalScale(27),
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    selectedGrowButton: {
+        backgroundColor: '#3DA0EE',
+        shadowColor: '#3DA0EE',
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 6,
+    },
+    growButtonText: {
+        color: '#000',
+        fontSize: moderateScale(18),
+        fontWeight: '600',
+        textAlign: 'center',
     },
 });

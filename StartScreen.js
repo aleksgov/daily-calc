@@ -208,10 +208,10 @@ const styles = StyleSheet.create({
     },
     headerText: {
         color: 'white',
-        fontSize: width > 400 ? moderateScale(24) : moderateScale(20),
+        fontSize: width > 400 ? moderateScale(18) : moderateScale(14),
         fontFamily: 'Montserrat',
         fontWeight: '700',
-        letterSpacing: moderateScale(1),
+        letterSpacing: moderateScale(1.2),
     },
     sunWrapper: {
         width: SUN_WRAPPER_SIZE,
