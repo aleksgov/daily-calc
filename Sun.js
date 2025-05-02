@@ -1,18 +1,47 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, Image, StyleSheet, TouchableWithoutFeedback, Easing } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Animated, Image, StyleSheet, TouchableWithoutFeedback, Easing, View } from 'react-native';
 import Svg, { Circle, Text as SvgText, TSpan } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import * as SplashScreen from 'expo-splash-screen';
+import { Asset } from 'expo-asset';
 import RAYS_IMAGE from './assets/images/StartScreen/sun-rays.png';
+
+SplashScreen.preventAutoHideAsync();
 
 const SUN_SIZE = scale(130);
 const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
+const IMAGES = [RAYS_IMAGE];
 
 export default function Sun({ onStart, label }) {
+    const [isReady, setIsReady] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
+    // Предзагрузка изображений
+    useEffect(() => {
+        async function prepare() {
+            try {
+                const cachePromises = IMAGES.map(img => Asset.fromModule(img).downloadAsync());
+                await Promise.all(cachePromises);
+            } catch (e) {
+                console.warn('Ошибка кеширования ассетов', e);
+            } finally {
+                setIsReady(true);
+            }
+        }
+        prepare();
+    }, []);
+
+    // Скрыть сплэш после загрузки
+    useEffect(() => {
+        if (isReady) {
+            SplashScreen.hideAsync();
+        }
+    }, [isReady]);
+
+    // Запуск анимаций вращения и пульсации
     useEffect(() => {
         Animated.loop(
             Animated.timing(rotateAnim, {
@@ -48,6 +77,10 @@ export default function Sun({ onStart, label }) {
 
     const lines = Array.isArray(label) ? label : label.split('\n');
 
+    if (!isReady) {
+        return <View style={{ flex: 1, backgroundColor: 'transparent' }} />;
+    }
+
     return (
         <>
             <Animated.View
@@ -68,6 +101,7 @@ export default function Sun({ onStart, label }) {
                     source={RAYS_IMAGE}
                     style={styles.raysImage}
                     resizeMode="contain"
+                    fadeDuration={0}
                 />
             </Animated.View>
 
