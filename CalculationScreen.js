@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#fff',
         paddingHorizontal: scale(20),
+        marginBottom: scale(70),
     },
     title: {
         fontSize: moderateScale(28),

@@ -81,12 +81,19 @@ export default function StartScreen({ navigation }) {
             </View>
 
             <Sun
-                label="Начать"
                 onStart={handleStart}
-                scaleAnim={scaleAnim}
-                rotateAnim={rotateAnim}
-                pulseAnim={pulseAnim}
-                translateY={translateY}
+                labelBlocks={[
+                    {
+                        text: 'Начать',
+                        style: {
+                            fontFamily: 'NotoSans_700Bold',
+                            fontWeight: 'bold',
+                            fontSize: moderateScale(24),
+                            fill: '#ffffff',
+                            dy: moderateScale(0),
+                        },
+                    },
+                ]}
             />
 
             <View style={styles.waveContainer}>

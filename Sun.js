@@ -12,7 +12,7 @@ const SUN_SIZE = scale(130);
 const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
 const IMAGES = [RAYS_IMAGE];
 
-export default function Sun({ onStart, label }) {
+export default function Sun({ onStart, labelBlocks }) {
     const [isReady, setIsReady] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
@@ -36,9 +36,7 @@ export default function Sun({ onStart, label }) {
 
     // Скрыть сплэш после загрузки
     useEffect(() => {
-        if (isReady) {
-            SplashScreen.hideAsync();
-        }
+        if (isReady) SplashScreen.hideAsync();
     }, [isReady]);
 
     // Запуск анимаций вращения и пульсации
@@ -74,8 +72,6 @@ export default function Sun({ onStart, label }) {
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
-
-    const lines = Array.isArray(label) ? label : label.split('\n');
 
     if (!isReady) {
         return <View style={{ flex: 1, backgroundColor: 'transparent' }} />;
@@ -143,17 +139,15 @@ export default function Sun({ onStart, label }) {
                             y="50%"
                             textAnchor="middle"
                             alignmentBaseline="middle"
-                            fontSize={moderateScale(24)}
-                            fontWeight="bold"
-                            fill="#ffffff"
                         >
-                            {lines.map((line, i) => (
+                            {labelBlocks.map((block, index) => (
                                 <TSpan
-                                    key={i}
+                                    key={index}
                                     x="50%"
-                                    dy={i === 0 ? -moderateScale(12) : moderateScale(24)}
+                                    dy={block.dy}
+                                    {...block.style}
                                 >
-                                    {line}
+                                    {block.text}
                                 </TSpan>
                             ))}
                         </SvgText>
