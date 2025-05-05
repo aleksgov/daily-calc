@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Animated, Text, Easing } from 'react-native';
-import Svg, { Path, Text as SvgText } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import Sun from './Sun';
+import Wave from "./Wave";
 
 const { width } = Dimensions.get('window');
 const WAVE_HEIGHT = verticalScale(550);
@@ -97,30 +97,7 @@ export default function StartScreen({ navigation }) {
             />
 
             <View style={styles.waveContainer}>
-                <Svg width={width} height={WAVE_HEIGHT}>
-                    <Path d={wavePath} fill="#3da0ee" />
-                    <SvgText
-                        x={moderateScale(30)}
-                        y={WAVE_HEIGHT / 2 + 90}
-                        textAnchor="start"
-                        fontSize={moderateScale(26)}
-                        fontWeight="600"
-                        fill="#ffffff"
-                        pointerEvents="none"
-                    >
-                        открой для себя
-                    </SvgText>
-                    <SvgText
-                        x={moderateScale(30)}
-                        y={WAVE_HEIGHT / 2 + 125}
-                        textAnchor="start"
-                        fontSize={moderateScale(38)}
-                        fontWeight="bold"
-                        fill="#ffffff"
-                    >
-                        вкус здоровья!
-                    </SvgText>
-                </Svg>
+                <Wave />
             </View>
         </View>
     );
