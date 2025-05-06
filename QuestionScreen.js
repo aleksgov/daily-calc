@@ -77,6 +77,7 @@ export default function QuestionScreen() {
     const [step, setStep] = useState(0);
     const totalSteps = steps.length;
     const [height, setHeight] = useState(130);
+    const [tempHeight, setTempHeight] = useState(130);
     const [selectedAnswers, setSelectedAnswers] = useState({});
     const [ageIndex, setAgeIndex] = useState(0);
 
@@ -223,15 +224,16 @@ export default function QuestionScreen() {
                 })
             ) : (
                 <View>
-                    <Text style={styles.sliderValue}>{height} см</Text>
+                    <Text style={styles.sliderValue}>{tempHeight} см</Text>
                     <View style={styles.sliderWrapper}>
                         <Slider
                             style={styles.slider}
                             minimumValue={MIN_HEIGHT}
                             maximumValue={MAX_HEIGHT}
                             step={1}
-                            value={height}
-                            onValueChange={setHeight}
+                            defaultValue={height}
+                            onValueChange={setTempHeight}
+                            onSlidingComplete={val => setHeight(val)}
                             minimumTrackTintColor="#3DA0EE"
                             maximumTrackTintColor="#C1C1C1"
                             thumbTintColor="#3DA0EE"
