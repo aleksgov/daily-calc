@@ -11,6 +11,12 @@ import GreenArrow from './assets/images/QuestionScreen/arrow/green-arrow.png';
 import RedArrow from './assets/images/QuestionScreen/arrow/red-arrow.png';
 import BackArrow from './assets/images/QuestionScreen/arrow/back-arrow.png';
 
+// Время
+import OneMonthIcon from './assets/images/QuestionScreen/time/one_month.png';
+import OneToThreeMonthsIcon from './assets/images/QuestionScreen/time/one_to_three_months.png';
+import ThreeToSixMonthsIcon from './assets/images/QuestionScreen/time/three_to_six_months.png';
+import NoDeadlineIcon from './assets/images/QuestionScreen/time/no_deadline.png';
+
 // Иконки для гендера
 import ManIcon from './assets/images/QuestionScreen/gender/man-icon.png';
 import WomanIcon from './assets/images/QuestionScreen/gender/woman-icon.png';
@@ -46,10 +52,10 @@ const steps = [
         ]
     },
     { question: 'За какой срок вы хотите достичь своей цели?', options: [
-            { text: 'До 1 месяца' },
-            { text: '1-3 месяца' },
-            { text: '3-6 месяцев' },
-            { text: 'Без конкретных сроков (в комфортном темпе)' },
+            { text: 'До 1 месяца', icon: OneMonthIcon },
+            { text: '1-3 месяца', icon: OneToThreeMonthsIcon },
+            { text: '3-6 месяцев', icon: ThreeToSixMonthsIcon },
+            { text: 'Без конкретных сроков (в комфортном темпе)', icon: NoDeadlineIcon },
         ]
     },
     { question: 'Ваш пол', options: [
@@ -230,10 +236,11 @@ export default function QuestionScreen() {
                             style={styles.slider}
                             minimumValue={MIN_HEIGHT}
                             maximumValue={MAX_HEIGHT}
+                            defaultValue={tempHeight}
+                            value={height}
                             step={1}
-                            defaultValue={height}
                             onValueChange={setTempHeight}
-                            onSlidingComplete={val => setHeight(val)}
+                            onSlidingComplete={setHeight}
                             minimumTrackTintColor="#3DA0EE"
                             maximumTrackTintColor="#C1C1C1"
                             thumbTintColor="#3DA0EE"

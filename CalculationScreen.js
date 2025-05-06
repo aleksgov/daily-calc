@@ -17,7 +17,7 @@ const messages = [
 export default function CalculationScreen({ navigation }) {
     const [progress, setProgress] = useState(0);
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
-    const [calculationComplete, setCalculationComplete] = useState(false);
+    const [stage, setStage] = useState('progress');
 
     const scaleValue = useSharedValue(1);
     const opacityValue = useSharedValue(1);
@@ -29,19 +29,18 @@ export default function CalculationScreen({ navigation }) {
 
     useEffect(() => {
         if (progress >= 1) {
+            setStage('transition');
             setTimeout(() => {
-                setCalculationComplete(true);
-            }, 1000);
+                setStage('sun');
+            }, 500);
             return;
         }
-
         const timer = setInterval(() => {
             setProgress(prev => {
-                const newProgress = prev + 0.005;
-                return newProgress > 1 ? 1 : newProgress;
+                const next = prev + 0.005;
+                return next > 1 ? 1 : next;
             });
         }, 5);
-
         return () => clearInterval(timer);
     }, [progress]);
 
@@ -55,21 +54,19 @@ export default function CalculationScreen({ navigation }) {
         }
     }, [progress]);
 
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ scale: scaleValue.value }],
-            opacity: opacityValue.value,
-        };
-    });
-
     useEffect(() => {
-        if (calculationComplete) {
+        if (stage === 'sun') {
             scaleValue.value = withTiming(1.5, { duration: 5000 });
             opacityValue.value = withTiming(0, { duration: 1000 });
         }
-    }, [calculationComplete]);
+    }, [stage]);
 
-    if (calculationComplete) {
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scaleValue.value }],
+        opacity: opacityValue.value,
+    }));
+
+    if (stage === 'sun') {
         if (!fontsLoaded) {
             return (
                 <View style={[styles.container, { backgroundColor: '#fff' }]}>
@@ -119,7 +116,7 @@ export default function CalculationScreen({ navigation }) {
         <View style={styles.container}>
             <Text style={styles.title}>Расчет питания...</Text>
 
-            <View style={styles.circleContainer}>
+            <View style={styles.progressWrapper}>
                 <Animated.View style={animatedStyle}>
                     <Circle
                         progress={progress}
@@ -132,16 +129,21 @@ export default function CalculationScreen({ navigation }) {
                         textStyle={styles.progressText}
                     />
                 </Animated.View>
-            </View>
 
-            <Animated.Text
-                style={styles.message}
-                entering={FadeIn.duration(500)}
-                exiting={FadeOut.duration(300)}
-                key={currentMessageIndex}
-            >
-                {messages[currentMessageIndex]}
-            </Animated.Text>
+                {stage === 'progress' && (
+                    <Animated.Text
+                        style={styles.message}
+                        entering={FadeIn.duration(500)}
+                        exiting={FadeOut.duration(500)}
+                        key={currentMessageIndex}
+                    >
+                        {messages[currentMessageIndex]}
+                    </Animated.Text>
+                )}
+                {stage === 'transition' && (
+                    <View style={styles.messagePlaceholder} />
+                )}
+            </View>
         </View>
     );
 }
@@ -160,12 +162,11 @@ const styles = StyleSheet.create({
         marginBottom: verticalScale(50),
         color: '#000',
     },
-    circleContainer: {
+    progressWrapper: {
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: verticalScale(40),
-        width: PROGRESS_CIRCLE_SIZE,
-        height: PROGRESS_CIRCLE_SIZE,
+        height: PROGRESS_CIRCLE_SIZE + verticalScale(40),
+        marginBottom: verticalScale(100),
     },
     progressText: {
         fontSize: moderateScale(30),
@@ -176,6 +177,12 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(18),
         color: '#666',
         textAlign: 'center',
+        marginTop: verticalScale(40),
+        maxWidth: scale(250),
+        alignSelf: 'center',
+    },
+    messagePlaceholder: {
+        height: verticalScale(40),
         marginTop: verticalScale(20),
     },
     sunContainer: {
@@ -194,12 +201,12 @@ const styles = StyleSheet.create({
     captionLine1: {
         fontFamily: 'NotoSans_500Medium',
         fontSize: moderateScale(30),
-        color: '#000000',
+        color: '#000',
     },
     captionLine2: {
         fontFamily: 'NotoSans_500Medium',
         fontSize: moderateScale(38),
-        color: '#000000',
+        color: '#000',
         marginTop: moderateScale(-15),
     },
 });
