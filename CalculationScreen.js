@@ -19,8 +19,8 @@ export default function CalculationScreen({ navigation }) {
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
     const [stage, setStage] = useState('progress');
 
-    const scaleValue = useSharedValue(1);
-    const opacityValue = useSharedValue(1);
+    const sunOpacity = useSharedValue(0);
+    const sunScale = useSharedValue(0.8);
 
     const [fontsLoaded] = useFonts({
         NotoSans_500Medium,
@@ -56,53 +56,60 @@ export default function CalculationScreen({ navigation }) {
 
     useEffect(() => {
         if (stage === 'sun') {
-            scaleValue.value = withTiming(1.5, { duration: 5000 });
-            opacityValue.value = withTiming(0, { duration: 1000 });
+            sunOpacity.value = withTiming(1, { duration: 1000 });
+            sunScale.value = withTiming(1, { duration: 2000 });
         }
-    }, [stage]);
+    }, [stage, sunOpacity, sunScale]);
 
-    const animatedStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scaleValue.value }],
-        opacity: opacityValue.value,
+    const sunAnimatedStyle = useAnimatedStyle(() => ({
+        opacity: sunOpacity.value,
+        transform: [{ scale: sunScale.value }],
     }));
 
     if (stage === 'sun') {
         if (!fontsLoaded) {
             return (
                 <View style={[styles.container, { backgroundColor: '#fff' }]}>
-                    <ActivityIndicator size="large" />
+                    <ActivityIndicator size="large" color="#000" />
                 </View>
             );
         }
 
         return (
             <View style={styles.container}>
-                <View style={styles.sunContainer}>
-                    <Sun
-                        onStart={() => navigation.replace('Start')}
-                        offsetY={moderateScale(50)}
-                        labelBlocks={[
-                            {
-                                text: 'Посмотреть',
-                                style: {
-                                    fontFamily: 'NotoSans_700Bold',
-                                    fontSize: moderateScale(18),
-                                    fill: '#ffffff',
-                                    dy: moderateScale(-5),
-                                }
-                            },
-                            {
-                                text: 'план',
-                                style: {
-                                    fontFamily: 'NotoSans_700Bold',
-                                    fontSize: moderateScale(18),
-                                    fill: '#ffffff',
-                                    dy: moderateScale(20),
-                                }
-                            },
-                        ]}
-                    />
-                </View>
+                <Animated.View
+                    entering={FadeIn.delay(1000).duration(1800)}
+                    exiting={FadeOut.duration(2500)}
+                >
+                    <Animated.View
+                        style={[styles.sunContainer, sunAnimatedStyle]}
+                    >
+                        <Sun
+                            onStart={() => navigation.replace('Start')}
+                            offsetY={moderateScale(50)}
+                            labelBlocks={[
+                                {
+                                    text: 'Посмотреть',
+                                    style: {
+                                        fontFamily: 'NotoSans_700Bold',
+                                        fontSize: moderateScale(18),
+                                        fill: '#ffffff',
+                                        dy: moderateScale(-5),
+                                    }
+                                },
+                                {
+                                    text: 'план',
+                                    style: {
+                                        fontFamily: 'NotoSans_700Bold',
+                                        fontSize: moderateScale(18),
+                                        fill: '#ffffff',
+                                        dy: moderateScale(20),
+                                    }
+                                },
+                            ]}
+                        />
+                    </Animated.View>
+                </Animated.View>
 
                 <View style={styles.captionContainer}>
                     <Text style={styles.captionLine1}>вперёд к</Text>
@@ -117,7 +124,7 @@ export default function CalculationScreen({ navigation }) {
             <Text style={styles.title}>Расчет питания...</Text>
 
             <View style={styles.progressWrapper}>
-                <Animated.View style={animatedStyle}>
+                <Animated.View>
                     <Circle
                         progress={progress}
                         size={PROGRESS_CIRCLE_SIZE}
@@ -140,9 +147,7 @@ export default function CalculationScreen({ navigation }) {
                         {messages[currentMessageIndex]}
                     </Animated.Text>
                 )}
-                {stage === 'transition' && (
-                    <View style={styles.messagePlaceholder} />
-                )}
+                {stage === 'transition' && <View style={styles.messagePlaceholder} />}
             </View>
         </View>
     );
