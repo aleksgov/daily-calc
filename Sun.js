@@ -131,8 +131,12 @@ export default function Sun({ onStart, labelBlocks }) {
                         <Circle
                             cx={SUN_SIZE / 2}
                             cy={SUN_SIZE / 2}
-                            r={SUN_SIZE / 2}
+                            r={SUN_SIZE / 2 - 2}
                             fill="#f3e626"
+                            stroke="#ffffff"
+                            strokeWidth={4}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                         />
                         <SvgText
                             x="50%"
