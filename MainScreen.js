@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ReferenceScreen } from './ReferenceScreen';
 import { DiaryScreen } from './DiaryScreen';
 import { SettingsScreen } from './SettingsScreen';
+import {scale, verticalScale} from "react-native-size-matters";
 
 import ReferenceIcon from './assets/icons/reference.svg';
 import ReferenceIconActive from './assets/icons/reference-active.svg';
@@ -12,6 +13,9 @@ import SettingsIcon from './assets/icons/settings.svg';
 import SettingsIconActive from './assets/icons/settings-active.svg';
 
 const Tab = createBottomTabNavigator();
+
+const getTabBarIcon = (icon, iconActive, focused) =>
+    focused ? React.createElement(iconActive, { width: scale(24), height: verticalScale(24) }) : React.createElement(icon, { width: 24, height: 24 });
 
 export default function MainScreen() {
     return (
@@ -29,9 +33,7 @@ export default function MainScreen() {
                 component={ReferenceScreen}
                 options={{
                     title: 'Справочник',
-                    tabBarIcon: ({ focused }) => (
-                        focused ? <ReferenceIconActive width={24} height={24} /> : <ReferenceIcon width={24} height={24} />
-                    ),
+                    tabBarIcon: ({ focused }) => getTabBarIcon(ReferenceIcon, ReferenceIconActive, focused),
                 }}
             />
             <Tab.Screen
@@ -39,9 +41,7 @@ export default function MainScreen() {
                 component={DiaryScreen}
                 options={{
                     title: 'Дневник',
-                    tabBarIcon: ({ focused }) => (
-                        focused ? <DiaryIconActive width={24} height={24} /> : <DiaryIcon width={24} height={24} />
-                    ),
+                    tabBarIcon: ({ focused }) => getTabBarIcon(DiaryIcon, DiaryIconActive, focused),
                 }}
             />
             <Tab.Screen
@@ -49,9 +49,7 @@ export default function MainScreen() {
                 component={SettingsScreen}
                 options={{
                     title: 'Параметры',
-                    tabBarIcon: ({ focused }) => (
-                        focused ? <SettingsIconActive width={24} height={24} /> : <SettingsIcon width={24} height={24} />
-                    ),
+                    tabBarIcon: ({ focused }) => getTabBarIcon(SettingsIcon, SettingsIconActive, focused),
                 }}
             />
         </Tab.Navigator>

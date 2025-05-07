@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Box } from './Box';
 import {moderateScale, scale, verticalScale} from "react-native-size-matters";
 
@@ -13,7 +13,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
             position: "relative",
-            marginVertical: verticalScale(40),
+            marginTop: scale(50),
+            marginBottom: verticalScale(15),
             marginHorizontal: scale(30),
             padding: scale(40),
             borderWidth: 2,
