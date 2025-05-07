@@ -1,75 +1,39 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, PanResponder, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Image, PanResponder } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-
-// Стрелки
-import BlueArrow from './assets/images/QuestionScreen/arrow/blue-arrow.png';
-import GreenArrow from './assets/images/QuestionScreen/arrow/green-arrow.png';
-import RedArrow from './assets/images/QuestionScreen/arrow/red-arrow.png';
-import BackArrow from './assets/images/QuestionScreen/arrow/back-arrow.png';
-
-// Время
-import OneMonthIcon from './assets/images/QuestionScreen/time/one_month.png';
-import OneToThreeMonthsIcon from './assets/images/QuestionScreen/time/one_to_three_months.png';
-import ThreeToSixMonthsIcon from './assets/images/QuestionScreen/time/three_to_six_months.png';
-import NoDeadlineIcon from './assets/images/QuestionScreen/time/no_deadline.png';
-
-// Иконки для гендера
-import ManIcon from './assets/images/QuestionScreen/gender/man-icon.png';
-import WomanIcon from './assets/images/QuestionScreen/gender/woman-icon.png';
-
-// Иконки для активности
-import SeatIcon from './assets/images/QuestionScreen/activity/sitting-icon.png';
-import WalkIcon from './assets/images/QuestionScreen/activity/walking-icon.png';
-import RunIcon from './assets/images/QuestionScreen/activity/running-icon.png';
-import SportIcon from './assets/images/QuestionScreen/activity/weightlifting-icon.png';
-
-// Иконки для возраста
-// (мужские)
-import ChildMIcon from './assets/images/QuestionScreen/age/man/child-man.png';
-import YouthMIcon from './assets/images/QuestionScreen/age/man/youth-man.png';
-import AdultMIcon from './assets/images/QuestionScreen/age/man/adult-man.png';
-import MiddleMIcon from './assets/images/QuestionScreen/age/man/middle-man.png';
-import SeniorMIcon from './assets/images/QuestionScreen/age/man/senior-man.png';
-
-// (женские)
-import ChildWIcon from './assets/images/QuestionScreen/age/woman/child-woman.png';
-import YouthWIcon from './assets/images/QuestionScreen/age/woman/youth-woman.png';
-import AdultWIcon from './assets/images/QuestionScreen/age/woman/adult-woman.png';
-import MiddleWIcon from './assets/images/QuestionScreen/age/woman/middle-woman.png';
-import SeniorWIcon from './assets/images/QuestionScreen/age/woman/senior-woman.png';
+import { images } from './assets';
 
 const { width } = Dimensions.get('window');
 
 const steps = [
     { question: 'Какая ваша основная цель?', options: [
-            { text: 'Снижение веса', icon: BlueArrow },
-            { text: 'Набор мышечной массы', icon: RedArrow },
-            { text: 'Поддержание текущего веса', icon: GreenArrow },
+            { text: 'Снижение веса', icon: images.BlueArrow },
+            { text: 'Набор мышечной массы', icon: images.RedArrow },
+            { text: 'Поддержание текущего веса', icon: images.GreenArrow },
         ]
     },
     { question: 'За какой срок вы хотите достичь своей цели?', options: [
-            { text: 'До 1 месяца', icon: OneMonthIcon },
-            { text: '1-3 месяца', icon: OneToThreeMonthsIcon },
-            { text: '3-6 месяцев', icon: ThreeToSixMonthsIcon },
-            { text: 'Без конкретных сроков (в комфортном темпе)', icon: NoDeadlineIcon },
+            { text: 'До 1 месяца', icon: images.OneMonthIcon },
+            { text: '1-3 месяца', icon: images.OneToThreeMonthsIcon },
+            { text: '3-6 месяцев', icon: images.ThreeToSixMonthsIcon },
+            { text: 'Без конкретных сроков (в комфортном темпе)', icon: images.NoDeadlineIcon },
         ]
     },
     { question: 'Ваш пол', options: [
-            { text: 'Мужской', icon: ManIcon },
-            { text: 'Женский', icon: WomanIcon },
+            { text: 'Мужской', icon: images.ManIcon },
+            { text: 'Женский', icon: images.WomanIcon },
         ]
     },
     { question: 'Ваш возраст' },
     { question: 'Ваш рост' },
     { question: 'Уровень физической активности:', options: [
-            { text: 'Минимальный (сидячий образ жизни)', icon: SeatIcon },
-            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: WalkIcon, iconSize: 38 },
-            { text: 'Средний (3–5 тренировок в неделю)', icon: RunIcon },
-            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: SportIcon, iconSize: 48 },
+            { text: 'Минимальный (сидячий образ жизни)', icon: images.SeatIcon },
+            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: images.WalkIcon, iconSize: 38 },
+            { text: 'Средний (3–5 тренировок в неделю)', icon: images.RunIcon },
+            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: images.SportIcon, iconSize: 48 },
         ]
     },
 ];
@@ -92,19 +56,19 @@ export default function QuestionScreen() {
     const getAgeOptions = (gender) => {
         if (gender === 'Женский') {
             return [
-                { label: 'До 18 лет', icon: ChildWIcon },
-                { label: '18-25 лет', icon: YouthWIcon },
-                { label: '26-35 лет', icon: AdultWIcon },
-                { label: '36-50 лет', icon: MiddleWIcon },
-                { label: 'Старше 50 лет', icon: SeniorWIcon },
+                { label: 'До 18 лет', icon: images.ChildWIcon },
+                { label: '18-25 лет', icon: images.YouthWIcon },
+                { label: '26-35 лет', icon: images.AdultWIcon },
+                { label: '36-50 лет', icon: images.MiddleWIcon },
+                { label: 'Старше 50 лет', icon: images.SeniorWIcon },
             ];
         } else {
             return [
-                { label: 'До 18 лет', icon: ChildMIcon },
-                { label: '18-25 лет', icon: YouthMIcon },
-                { label: '26-35 лет', icon: AdultMIcon },
-                { label: '36-50 лет', icon: MiddleMIcon },
-                { label: 'Старше 50 лет', icon: SeniorMIcon },
+                { label: 'До 18 лет', icon: images.ChildMIcon },
+                { label: '18-25 лет', icon: images.YouthMIcon },
+                { label: '26-35 лет', icon: images.AdultMIcon },
+                { label: '36-50 лет', icon: images.MiddleMIcon },
+                { label: 'Старше 50 лет', icon: images.SeniorMIcon },
             ];
         }
     };
@@ -154,7 +118,7 @@ export default function QuestionScreen() {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => step > 0 ? setStep(step - 1) : navigation.goBack()}>
-                    <Image source={BackArrow} style={styles.backArrow} />
+                    <Image source={images.BackArrow} style={styles.backArrow} />
                 </TouchableOpacity>
 
                 <ProgressBar
