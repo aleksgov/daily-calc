@@ -3,11 +3,12 @@ import {View, Text, StyleSheet, Dimensions, ActivityIndicator} from 'react-nativ
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { Circle } from 'react-native-progress';
-import Animated, { FadeIn, FadeOut, useSharedValue, withTiming, useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useFonts, NotoSans_500Medium, NotoSans_700Bold } from '@expo-google-fonts/noto-sans';
 import Sun from './Sun';
 
 const PROGRESS_CIRCLE_SIZE = scale(130);
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const messages = [
     "Анализируем полученные ответы",
@@ -19,9 +20,6 @@ export default function CalculationScreen({ navigation }) {
     const [progress, setProgress] = useState(0);
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
     const [stage, setStage] = useState('progress');
-
-    const sunOpacity = useSharedValue(0);
-    const sunScale = useSharedValue(0.8);
 
     const [fontsLoaded] = useFonts({
         NotoSans_500Medium,
@@ -55,18 +53,6 @@ export default function CalculationScreen({ navigation }) {
         }
     }, [progress]);
 
-    useEffect(() => {
-        if (stage === 'sun') {
-            sunOpacity.value = withTiming(1, { duration: 1000 });
-            sunScale.value = withTiming(1, { duration: 2000 });
-        }
-    }, [stage, sunOpacity, sunScale]);
-
-    const sunAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: sunOpacity.value,
-        transform: [{ scale: sunScale.value }],
-    }));
-
     if (stage === 'sun') {
         if (!fontsLoaded) {
             return (
@@ -78,42 +64,31 @@ export default function CalculationScreen({ navigation }) {
 
         return (
             <View style={styles.container}>
-                <Animated.View
-                    entering={FadeIn.delay(1000).duration(1800)}
-                    exiting={FadeOut.duration(2500)}
-                >
-                    <Animated.View
-                        style={[styles.sunContainer, sunAnimatedStyle]}
-                    >
-                        <Sun
-                            onStart={() => {
-                                AsyncStorage.setItem('@first_launch', 'false');
-                                navigation.replace('Main');
-                            }}
-                            offsetY={moderateScale(50)}
-                            labelBlocks={[
-                                {
-                                    text: 'Посмотреть',
-                                    style: {
-                                        fontFamily: 'NotoSans_700Bold',
-                                        fontSize: moderateScale(18),
-                                        fill: '#ffffff',
-                                        dy: moderateScale(-5),
-                                    }
-                                },
-                                {
-                                    text: 'план',
-                                    style: {
-                                        fontFamily: 'NotoSans_700Bold',
-                                        fontSize: moderateScale(18),
-                                        fill: '#ffffff',
-                                        dy: moderateScale(20),
-                                    }
-                                },
-                            ]}
-                        />
-                    </Animated.View>
-                </Animated.View>
+                <View style={styles.SunWrapper}>
+                    <Sun
+                        onStart={() => navigation.replace('Start')}
+                        labelBlocks={[
+                            {
+                                text: 'Посмотреть',
+                                style: {
+                                    fontFamily: 'NotoSans_700Bold',
+                                    fontSize: moderateScale(18),
+                                    fill: '#ffffff',
+                                    dy: moderateScale(-5),
+                                }
+                            },
+                            {
+                                text: 'план',
+                                style: {
+                                    fontFamily: 'NotoSans_700Bold',
+                                    fontSize: moderateScale(18),
+                                    fill: '#ffffff',
+                                    dy: moderateScale(20),
+                                }
+                            },
+                        ]}
+                    />
+                </View>
 
                 <View style={styles.captionContainer}>
                     <Text style={styles.captionLine1}>вперёд к</Text>
@@ -127,7 +102,7 @@ export default function CalculationScreen({ navigation }) {
         <View style={styles.container}>
             <Text style={styles.title}>Расчет питания...</Text>
 
-            <View style={styles.progressWrapper}>
+            <View style={styles.ProgressWrapper}>
                 <Animated.View>
                     <Circle
                         progress={progress}
@@ -140,19 +115,18 @@ export default function CalculationScreen({ navigation }) {
                         textStyle={styles.progressText}
                     />
                 </Animated.View>
-
-                {stage === 'progress' && (
-                    <Animated.Text
-                        style={styles.message}
-                        entering={FadeIn.duration(500)}
-                        exiting={FadeOut.duration(500)}
-                        key={currentMessageIndex}
-                    >
-                        {messages[currentMessageIndex]}
-                    </Animated.Text>
-                )}
-                {stage === 'transition' && <View style={styles.messagePlaceholder} />}
             </View>
+
+            {stage === 'progress' && (
+                <Animated.Text
+                    style={styles.message}
+                    entering={FadeIn.duration(500)}
+                    exiting={FadeOut.duration(500)}
+                    key={currentMessageIndex}
+                >
+                    {messages[currentMessageIndex]}
+                </Animated.Text>
+            )}
         </View>
     );
 }
@@ -160,22 +134,29 @@ export default function CalculationScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#fff',
-        paddingHorizontal: scale(20),
     },
     title: {
         fontSize: moderateScale(28),
         fontWeight: '600',
-        marginBottom: verticalScale(50),
         color: '#000',
+        position: 'absolute',
+        top: SCREEN_HEIGHT * 0.3,
+        alignSelf: 'center',
     },
-    progressWrapper: {
+    ProgressWrapper: {
+        position: 'absolute',
+        top: SCREEN_HEIGHT / 2 - PROGRESS_CIRCLE_SIZE / 2,
+        left: SCREEN_WIDTH / 2 - PROGRESS_CIRCLE_SIZE / 2,
+        zIndex: 2,
+    },
+    SunWrapper: {
+        position: 'absolute',
         justifyContent: 'center',
         alignItems: 'center',
-        height: PROGRESS_CIRCLE_SIZE + verticalScale(40),
-        marginBottom: verticalScale(100),
+        top: SCREEN_HEIGHT / 8,
+        left: SCREEN_WIDTH / 2,
+        zIndex: 3,
     },
     progressText: {
         fontSize: moderateScale(30),
@@ -186,26 +167,17 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(18),
         color: '#666',
         textAlign: 'center',
-        marginTop: verticalScale(40),
-        maxWidth: scale(250),
+        position: 'absolute',
+        bottom: SCREEN_HEIGHT * 0.35,
         alignSelf: 'center',
-    },
-    messagePlaceholder: {
-        height: verticalScale(40),
-        marginTop: verticalScale(20),
-    },
-    sunContainer: {
-        marginBottom: moderateScale(470),
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: scale(20),
-        zIndex: 1,
+        maxWidth: scale(250),
     },
     captionContainer: {
+        position: 'absolute',
         alignItems: 'flex-start',
-        marginBottom: moderateScale(70),
-        marginLeft: moderateScale(-30),
-        zIndex: 3,
+        bottom: SCREEN_HEIGHT * 0.2,
+        left: SCREEN_WIDTH / 10,
+        zIndex: 4,
     },
     captionLine1: {
         fontFamily: 'NotoSans_500Medium',
