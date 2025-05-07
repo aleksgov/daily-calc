@@ -9,40 +9,9 @@ const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
 
 export default function Sun({ onStart, labelBlocks }) {
     const scaleAnim = useRef(new Animated.Value(1)).current;
-    const raysScaleAnim = useRef(new Animated.Value(0)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
-
-    // Предзагрузка изображений
-    useEffect(() => {
-        async function prepare() {
-            try {
-                const cachePromises = IMAGES.map(img => Asset.fromModule(img).downloadAsync());
-                await Promise.all(cachePromises);
-            } catch (e) {
-                console.warn('Ошибка кеширования ассетов', e);
-            } finally {
-                setIsReady(true);
-            }
-        }
-        prepare();
-    }, []);
-
-    // Скрыть сплэш после загрузки
-    useEffect(() => {
-        if (isReady) {
-            Animated.sequence([
-                Animated.parallel([
-                    Animated.timing(raysScaleAnim, {
-                        toValue: 1,
-                        duration: 1000,
-                        useNativeDriver: true,
-                    }),
-                ]),
-            ]).start();
-        }
-    }, [isReady]);
 
     // Запуск анимаций вращения и пульсации
     useEffect(() => {
@@ -78,10 +47,6 @@ export default function Sun({ onStart, labelBlocks }) {
         outputRange: ['0deg', '360deg'],
     });
 
-    if (!isReady) {
-        return <View style={{ flex: 1, backgroundColor: 'transparent' }} />;
-    }
-
     return (
         <>
             <Animated.View
@@ -91,7 +56,7 @@ export default function Sun({ onStart, labelBlocks }) {
                     {
                         transform: [
                             { translateY: translateY },
-                            { scale: Animated.multiply(pulseAnim, raysScaleAnim) },
+                            { scale: pulseAnim },
                             { rotate: rotateInterpolate },
                         ],
                     },
