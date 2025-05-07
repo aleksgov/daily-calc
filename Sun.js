@@ -1,19 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet, TouchableWithoutFeedback, Easing, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Image, StyleSheet, TouchableWithoutFeedback, Easing } from 'react-native';
 import Svg, { Circle, Text as SvgText, TSpan } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import * as SplashScreen from 'expo-splash-screen';
-import { Asset } from 'expo-asset';
-import RAYS_IMAGE from './assets/images/StartScreen/sun-rays.png';
-
-SplashScreen.preventAutoHideAsync();
+import { images } from './assets';
 
 const SUN_SIZE = scale(130);
 const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
-const IMAGES = [RAYS_IMAGE];
 
 export default function Sun({ onStart, labelBlocks }) {
-    const [isReady, setIsReady] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const raysScaleAnim = useRef(new Animated.Value(0)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
@@ -105,7 +99,7 @@ export default function Sun({ onStart, labelBlocks }) {
                 pointerEvents="none"
             >
                 <Image
-                    source={RAYS_IMAGE}
+                    source={images.RAYS_IMAGE}
                     style={styles.raysImage}
                     resizeMode="contain"
                     fadeDuration={0}
