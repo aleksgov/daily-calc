@@ -3,13 +3,14 @@ import { View, StyleSheet, Dimensions, Animated, Text, Easing } from 'react-nati
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import Sun from './Sun';
 import Wave from "./Wave";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get('window');
 const WAVE_HEIGHT = verticalScale(550);
 
 export default function StartScreen({ navigation }) {
     const scaleAnim = useRef(new Animated.Value(1)).current;
-    const translateY = useRef(new Animated.Value(verticalScale(210))).current;
+    useRef(new Animated.Value(verticalScale(210))).current;
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -43,15 +44,6 @@ export default function StartScreen({ navigation }) {
         ).start();
     }, []);
 
-    const wavePath = useMemo(() => `
-    M0 ${WAVE_HEIGHT / 2}
-    Q ${width / 4} ${WAVE_HEIGHT / 2 - verticalScale(25)} ${width / 2} ${WAVE_HEIGHT / 2}
-    T ${width} ${WAVE_HEIGHT / 2}
-    L ${width} ${WAVE_HEIGHT}
-    L 0 ${WAVE_HEIGHT}
-    Z
-  `, []);
-
     const handleStart = useCallback(() => {
         Animated.sequence([
             Animated.timing(scaleAnim, {
@@ -68,6 +60,7 @@ export default function StartScreen({ navigation }) {
             }),
         ]).start(() => {
             console.log("Кнопка нажата");
+            AsyncStorage.setItem('@first_launch', 'true');
             navigation.navigate('Quest');
         });
     }, [scaleAnim, navigation]);

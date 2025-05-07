@@ -19,13 +19,19 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.govorukha.dailycalc"
     },
     "web": {
       "favicon": "./assets/icon.png"
     },
     "plugins": [
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "74895a83-726c-416f-a058-28a2516786a4"
+      }
+    }
   }
 }
