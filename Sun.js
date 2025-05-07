@@ -15,6 +15,7 @@ const IMAGES = [RAYS_IMAGE];
 export default function Sun({ onStart, labelBlocks }) {
     const [isReady, setIsReady] = useState(false);
     const scaleAnim = useRef(new Animated.Value(1)).current;
+    const raysScaleAnim = useRef(new Animated.Value(0)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -36,7 +37,17 @@ export default function Sun({ onStart, labelBlocks }) {
 
     // Скрыть сплэш после загрузки
     useEffect(() => {
-        if (isReady) SplashScreen.hideAsync();
+        if (isReady) {
+            Animated.sequence([
+                Animated.parallel([
+                    Animated.timing(raysScaleAnim, {
+                        toValue: 1,
+                        duration: 1000,
+                        useNativeDriver: true,
+                    }),
+                ]),
+            ]).start();
+        }
     }, [isReady]);
 
     // Запуск анимаций вращения и пульсации
@@ -86,7 +97,7 @@ export default function Sun({ onStart, labelBlocks }) {
                     {
                         transform: [
                             { translateY: translateY },
-                            { scale: pulseAnim },
+                            { scale: Animated.multiply(pulseAnim, raysScaleAnim) },
                             { rotate: rotateInterpolate },
                         ],
                     },
