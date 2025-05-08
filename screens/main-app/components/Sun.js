@@ -10,6 +10,7 @@ const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);
 export default function Sun({ onStart, labelBlocks }) {
     const scaleAnim = useRef(new Animated.Value(1)).current;
     const translateY = useRef(new Animated.Value(verticalScale(210))).current;
+    const raysScaleAnim = useRef(new Animated.Value(0)).current;
     const rotateAnim = useRef(new Animated.Value(0)).current;
     const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -40,6 +41,14 @@ export default function Sun({ onStart, labelBlocks }) {
                 }),
             ])
         ).start();
+
+        Animated.parallel([
+            Animated.timing(raysScaleAnim, {
+                toValue: 1,
+                duration: 500,
+                useNativeDriver: true,
+            }),
+        ]).start();
     }, []);
 
     const rotateInterpolate = rotateAnim.interpolate({
@@ -57,6 +66,7 @@ export default function Sun({ onStart, labelBlocks }) {
                         transform: [
                             { translateY: translateY },
                             { scale: pulseAnim },
+                            { scale: Animated.multiply(pulseAnim, raysScaleAnim) },
                             { rotate: rotateInterpolate },
                         ],
                     },
