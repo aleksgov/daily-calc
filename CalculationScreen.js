@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {View, Text, StyleSheet, Dimensions, ActivityIndicator} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import { scale, moderateScale } from 'react-native-size-matters';
 import { Circle } from 'react-native-progress';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useFonts, NotoSans_500Medium, NotoSans_700Bold } from '@expo-google-fonts/noto-sans';
@@ -66,7 +66,11 @@ export default function CalculationScreen({ navigation }) {
             <View style={styles.container}>
                 <View style={styles.SunWrapper}>
                     <Sun
-                        onStart={() => navigation.replace('Start')}
+                        onStart={() => {
+                            AsyncStorage.setItem('@first_launch', 'false');
+                            navigation.replace('Main');
+                        }}
+                        offsetY={moderateScale(50)}
                         labelBlocks={[
                             {
                                 text: 'Посмотреть',
