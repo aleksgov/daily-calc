@@ -4,36 +4,71 @@ import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import { images } from '../../assets';
+
+// Стрелки
+import BlueArrow from '@assets/images/survey/QuestionScreen/arrow/blue-arrow.svg';
+import GreenArrow from '@assets/images/survey/QuestionScreen/arrow/green-arrow.svg';
+import RedArrow from '@assets/images/survey/QuestionScreen/arrow/red-arrow.svg';
+import BackArrow from '@assets/images/survey/QuestionScreen/arrow/back-arrow.svg';
+
+// Время
+import OneMonthIcon from '@assets/images/survey/QuestionScreen/time/one-month.svg';
+import OneToThreeMonthsIcon from '@assets/images/survey/QuestionScreen/time/one-to-three-months.svg';
+import ThreeToSixMonthsIcon from '@assets/images/survey/QuestionScreen/time/three-to-six-months.svg';
+import NoDeadlineIcon from '@assets/images/survey/QuestionScreen/time/no-deadline.svg';
+
+// Иконки для гендера
+import ManIcon from '@assets/images/survey/QuestionScreen/gender/man-icon.svg';
+import WomanIcon from '@assets/images/survey/QuestionScreen/gender/woman-icon.svg';
+
+// Иконки для активности
+import SeatIcon from '@assets/images/survey/QuestionScreen/activity/sitting-icon.svg';
+import WalkIcon from '@assets/images/survey/QuestionScreen/activity/walking-icon.svg';
+import RunIcon from '@assets/images/survey/QuestionScreen/activity/running-icon.svg';
+import SportIcon from '@assets/images/survey/QuestionScreen/activity/weightlifting-icon.svg';
+
+// Иконки для возраста (мужские)
+import ChildMIcon from '@assets/images/survey/QuestionScreen/age/man/child-man.svg';
+import YouthMIcon from '@assets/images/survey/QuestionScreen/age/man/youth-man.svg';
+import AdultMIcon from '@assets/images/survey/QuestionScreen/age/man/adult-man.svg';
+import MiddleMIcon from '@assets/images/survey/QuestionScreen/age/man/middle-man.svg';
+import SeniorMIcon from '@assets/images/survey/QuestionScreen/age/man/senior-man.svg';
+
+// Иконки для возраста (женские)
+import ChildWIcon from '@assets/images/survey/QuestionScreen/age/woman/child-woman.svg';
+import YouthWIcon from '@assets/images/survey/QuestionScreen/age/woman/youth-woman.svg';
+import AdultWIcon from '@assets/images/survey/QuestionScreen/age/woman/adult-woman.svg';
+import MiddleWIcon from '@assets/images/survey/QuestionScreen/age/woman/middle-woman.svg';
+import SeniorWIcon from '@assets/images/survey/QuestionScreen/age/woman/senior-woman.svg';
 
 const { width } = Dimensions.get('window');
 
 const steps = [
     { question: 'Какая ваша основная цель?', options: [
-            { text: 'Снижение веса', icon: images.BlueArrow },
-            { text: 'Набор мышечной массы', icon: images.RedArrow },
-            { text: 'Поддержание текущего веса', icon: images.GreenArrow },
+            { text: 'Снижение веса', icon: BlueArrow },
+            { text: 'Набор мышечной массы', icon: RedArrow },
+            { text: 'Поддержание текущего веса', icon: GreenArrow },
         ]
     },
     { question: 'За какой срок вы хотите достичь своей цели?', options: [
-            { text: 'До 1 месяца', icon: images.OneMonthIcon },
-            { text: '1-3 месяца', icon: images.OneToThreeMonthsIcon },
-            { text: '3-6 месяцев', icon: images.ThreeToSixMonthsIcon },
-            { text: 'Без конкретных сроков (в комфортном темпе)', icon: images.NoDeadlineIcon },
+            { text: 'До 1 месяца', icon: OneMonthIcon },
+            { text: '1-3 месяца', icon: OneToThreeMonthsIcon },
+            { text: '3-6 месяцев', icon: ThreeToSixMonthsIcon },
+            { text: 'Без конкретных сроков (в комфортном темпе)', icon: NoDeadlineIcon },
         ]
     },
     { question: 'Ваш пол', options: [
-            { text: 'Мужской', icon: images.ManIcon },
-            { text: 'Женский', icon: images.WomanIcon },
+            { text: 'Мужской', icon: ManIcon },
+            { text: 'Женский', icon: WomanIcon },
         ]
     },
     { question: 'Ваш возраст' },
     { question: 'Ваш рост' },
     { question: 'Уровень физической активности:', options: [
-            { text: 'Минимальный (сидячий образ жизни)', icon: images.SeatIcon },
-            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: images.WalkIcon, iconSize: 38 },
-            { text: 'Средний (3–5 тренировок в неделю)', icon: images.RunIcon },
-            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: images.SportIcon, iconSize: 48 },
+            { text: 'Минимальный (сидячий образ жизни)', icon: SeatIcon },
+            { text: 'Низкий (1–2 тренировки в неделю или много ходьбы)', icon: WalkIcon, iconSize: 38 },
+            { text: 'Средний (3–5 тренировок в неделю)', icon: RunIcon },
+            { text: 'Высокий (интенсивные тренировки, физическая работа или спорт)', icon: SportIcon, iconSize: 48 },
         ]
     },
 ];
@@ -56,19 +91,19 @@ export default function QuestionScreen() {
     const getAgeOptions = (gender) => {
         if (gender === 'Женский') {
             return [
-                { label: 'До 18 лет', icon: images.ChildWIcon },
-                { label: '18-25 лет', icon: images.YouthWIcon },
-                { label: '26-35 лет', icon: images.AdultWIcon },
-                { label: '36-50 лет', icon: images.MiddleWIcon },
-                { label: 'Старше 50 лет', icon: images.SeniorWIcon },
+                { label: 'До 18 лет', icon: ChildWIcon },
+                { label: '18-25 лет', icon: YouthWIcon },
+                { label: '26-35 лет', icon: AdultWIcon },
+                { label: '36-50 лет', icon: MiddleWIcon },
+                { label: 'Старше 50 лет', icon: SeniorWIcon },
             ];
         } else {
             return [
-                { label: 'До 18 лет', icon: images.ChildMIcon },
-                { label: '18-25 лет', icon: images.YouthMIcon },
-                { label: '26-35 лет', icon: images.AdultMIcon },
-                { label: '36-50 лет', icon: images.MiddleMIcon },
-                { label: 'Старше 50 лет', icon: images.SeniorMIcon },
+                { label: 'До 18 лет', icon: ChildMIcon },
+                { label: '18-25 лет', icon: YouthMIcon },
+                { label: '26-35 лет', icon: AdultMIcon },
+                { label: '36-50 лет', icon: MiddleMIcon },
+                { label: 'Старше 50 лет', icon: SeniorMIcon },
             ];
         }
     };
@@ -118,7 +153,16 @@ export default function QuestionScreen() {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => step > 0 ? setStep(step - 1) : navigation.goBack()}>
-                    <Image source={images.BackArrow} style={styles.backArrow} />
+                    {(() => {
+                        const BackIcon = BackArrow;
+                        return (
+                            <BackIcon
+                                width={scale(24)}
+                                height={scale(24)}
+                                style={styles.backArrow}
+                            />
+                        );
+                    })()}
                 </TouchableOpacity>
 
                 <ProgressBar
@@ -132,10 +176,17 @@ export default function QuestionScreen() {
 
             {step === ageStepIndex ? (
                 <View style={styles.ageContainer} {...panResponder.panHandlers}>
-                    <Image
-                        source={ageOptions[ageIndex].icon}
-                        style={styles.ageImage}
-                    />
+                    {(() => {
+                        const AgeIcon = ageOptions[ageIndex].icon;
+                        return (
+                            <AgeIcon
+                                width={width * 0.5}
+                                height={width * 0.5}
+                                style={styles.ageImage}
+                            />
+                        );
+                    })()}
+
                     <View style={styles.ageLabelContainer}>
                         <TouchableOpacity onPress={handlePrevAge} style={styles.arrowTouchable}>
                             <Text style={styles.ageArrow}>{'<'}</Text>
@@ -167,21 +218,17 @@ export default function QuestionScreen() {
                             onPress={() => handleAnswer(option.text)}
                         >
                             <View style={styles.buttonContent}>
-                                {option.icon && (
-                                    <View style={styles.iconContainer}>
-                                        <Image
-                                            source={option.icon}
-                                            style={[
-                                                styles.icon,
-                                                {
-                                                    width: option.iconSize ? scale(option.iconSize) : styles.icon.width,
-                                                    height: option.iconSize ? scale(option.iconSize) : styles.icon.height,
-                                                    tintColor: isSelected ? '#fff' : null
-                                                },
-                                            ]}
+                                {option.icon && (() => {
+                                    const Icon = option.icon;
+                                    return (
+                                        <Icon
+                                            width={ option.iconSize ? scale(option.iconSize) : moderateScale(32) }
+                                            height={ option.iconSize ? scale(option.iconSize) : moderateScale(32) }
+                                            fill={ isSelected ? "#fff" : "#000" }
+                                            style={styles.icon}
                                         />
-                                    </View>
-                                )}
+                                    );
+                                })()}
                                 <Text style={[
                                     styles.buttonText,
                                     isSelected && styles.selectedButtonText
