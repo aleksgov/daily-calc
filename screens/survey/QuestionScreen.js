@@ -221,12 +221,13 @@ export default function QuestionScreen() {
                                 {option.icon && (() => {
                                     const Icon = option.icon;
                                     return (
-                                        <Icon
-                                            width={ option.iconSize ? scale(option.iconSize) : moderateScale(32) }
-                                            height={ option.iconSize ? scale(option.iconSize) : moderateScale(32) }
-                                            fill={ isSelected ? "#fff" : "#000" }
-                                            style={styles.icon}
-                                        />
+                                        <View style={styles.iconContainer}>
+                                            <Icon
+                                                width={option.iconSize ? scale(option.iconSize) : moderateScale(32)}
+                                                height={option.iconSize ? scale(option.iconSize) : moderateScale(32)}
+                                                fill={isSelected ? "#fff" : "#000"}
+                                            />
+                                        </View>
                                     );
                                 })()}
                                 <Text style={[
@@ -323,10 +324,10 @@ const styles = StyleSheet.create({
         marginLeft: scale(15),
     },
     question: {
-        fontSize: moderateScale(28),
+        fontSize: moderateScale(28, 0.3),
         fontWeight: '600',
-        marginTop: verticalScale(60),
-        marginBottom: verticalScale(35),
+        marginTop: moderateScale(50),
+        marginBottom: moderateScale(30),
         marginLeft: scale(8),
         textAlign: 'left',
     },
@@ -335,7 +336,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         paddingVertical: verticalScale(16),
         borderRadius: scale(15),
-        marginBottom: verticalScale(27),
+        marginBottom: moderateScale(27, 0.1),
         marginLeft: scale(8),
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 0 },
@@ -353,11 +354,12 @@ const styles = StyleSheet.create({
     buttonContent: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'flex-start',
         paddingHorizontal: scale(10),
     },
     buttonText: {
         color: '#000',
-        fontSize: moderateScale(18),
+        fontSize: moderateScale(18, 0.1),
         fontWeight: '600',
         textAlign: 'left',
         flexShrink: 1,
@@ -367,7 +369,7 @@ const styles = StyleSheet.create({
         color: '#ffffff',
     },
     iconContainer: {
-        width: scale(30),
+        width: scale(35),
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: scale(13),
