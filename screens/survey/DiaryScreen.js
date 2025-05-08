@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Box } from './Box';
+import { Box } from './components/Box';
 import {moderateScale, scale, verticalScale} from "react-native-size-matters";
 
 export const DiaryScreen = () => (
     <View style={styles.container}>
-        <Box onPress={() => console.log("Кнопка MyCalory нажата")} />
+        <Box/>
     </View>
 );
 

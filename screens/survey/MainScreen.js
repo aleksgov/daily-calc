@@ -5,12 +5,12 @@ import { DiaryScreen } from './DiaryScreen';
 import { SettingsScreen } from './SettingsScreen';
 import {scale, verticalScale} from "react-native-size-matters";
 
-import ReferenceIcon from './assets/icons/reference.svg';
-import ReferenceIconActive from './assets/icons/reference-active.svg';
-import DiaryIcon from './assets/icons/diary.svg';
-import DiaryIconActive from './assets/icons/diary-active.svg';
-import SettingsIcon from './assets/icons/settings.svg';
-import SettingsIconActive from './assets/icons/settings-active.svg';
+import ReferenceIcon from '../../assets/icons/reference.svg';
+import ReferenceIconActive from '../../assets/icons/reference-active.svg';
+import DiaryIcon from '../../assets/icons/diary.svg';
+import DiaryIconActive from '../../assets/icons/diary-active.svg';
+import SettingsIcon from '../../assets/icons/settings.svg';
+import SettingsIconActive from '../../assets/icons/settings-active.svg';
 
 const Tab = createBottomTabNavigator();
 

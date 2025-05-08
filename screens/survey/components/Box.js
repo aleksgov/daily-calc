@@ -1,4 +1,3 @@
-// Box.js
 import React from "react";
 import styled from "styled-components/native";
 import { scale, moderateScale, verticalScale } from "react-native-size-matters";

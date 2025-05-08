@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, TouchableWithoutFeedback, Easing } from 'react-native';
 import Svg, { Circle, Text as SvgText, TSpan } from 'react-native-svg';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import { images } from './assets';
+import { images } from '../../../assets';
 
 const SUN_SIZE = scale(130);
 const SUN_WRAPPER_SIZE = SUN_SIZE * moderateScale(3.5);

@@ -5,7 +5,7 @@ import { scale, moderateScale } from 'react-native-size-matters';
 import { Circle } from 'react-native-progress';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useFonts, NotoSans_500Medium, NotoSans_700Bold } from '@expo-google-fonts/noto-sans';
-import Sun from './Sun';
+import Sun from './components/Sun';
 
 const PROGRESS_CIRCLE_SIZE = scale(130);
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');

@@ -4,7 +4,7 @@ import Slider from '@react-native-community/slider';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import { images } from './assets';
+import { images } from '../../assets';
 
 const { width } = Dimensions.get('window');
 

@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, Animated, Text, Easing } from 'react-native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import Sun from './Sun';
-import Wave from "./Wave";
+import Sun from './components/Sun';
+import Wave from "./components/Wave";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get('window');
