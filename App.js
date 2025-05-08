@@ -4,10 +4,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
-import StartScreen from './screens/main-app/StartScreen';
-import QuestionScreen from './screens/main-app/QuestionScreen';
-import CalculationScreen from './screens/main-app/CalculationScreen';
-import MainScreen from './screens/survey/MainScreen';
+import StartScreen from './screens/survey/StartScreen';
+import QuestionScreen from './screens/survey/QuestionScreen';
+import CalculationScreen from './screens/survey/CalculationScreen';
+import MainScreen from './screens/main-app/MainScreen';
 import { preloadAssets } from './assets';
 
 const Stack = createStackNavigator();
