@@ -1,35 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput, Keyboard, PanResponder, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import Slider from '@react-native-community/slider';
+import {View, Text, TouchableOpacity, StyleSheet, Dimensions, TextInput, Keyboard, PanResponder, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { ProgressBar } from 'react-native-paper';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
+import NumericInput from './components/NumericInput';
+import ConfirmButton from './components/ConfirmButton';
 
-// Импорты иконок остаются без изменений
+// Импорты иконок
 import BlueArrow from '@assets/images/survey/QuestionScreen/arrow/blue-arrow.svg';
 import GreenArrow from '@assets/images/survey/QuestionScreen/arrow/green-arrow.svg';
 import RedArrow from '@assets/images/survey/QuestionScreen/arrow/red-arrow.svg';
 import BackArrow from '@assets/images/survey/QuestionScreen/arrow/back-arrow.svg';
-
 import OneMonthIcon from '@assets/images/survey/QuestionScreen/time/one-month.svg';
 import OneToThreeMonthsIcon from '@assets/images/survey/QuestionScreen/time/one-to-three-months.svg';
 import ThreeToSixMonthsIcon from '@assets/images/survey/QuestionScreen/time/three-to-six-months.svg';
 import NoDeadlineIcon from '@assets/images/survey/QuestionScreen/time/no-deadline.svg';
-
 import ManIcon from '@assets/images/survey/QuestionScreen/gender/man-icon.svg';
 import WomanIcon from '@assets/images/survey/QuestionScreen/gender/woman-icon.svg';
-
 import SeatIcon from '@assets/images/survey/QuestionScreen/activity/sitting-icon.svg';
 import WalkIcon from '@assets/images/survey/QuestionScreen/activity/walking-icon.svg';
 import RunIcon from '@assets/images/survey/QuestionScreen/activity/running-icon.svg';
 import SportIcon from '@assets/images/survey/QuestionScreen/activity/weightlifting-icon.svg';
-
 import ChildMIcon from '@assets/images/survey/QuestionScreen/age/man/child-man.svg';
 import YouthMIcon from '@assets/images/survey/QuestionScreen/age/man/youth-man.svg';
 import AdultMIcon from '@assets/images/survey/QuestionScreen/age/man/adult-man.svg';
 import MiddleMIcon from '@assets/images/survey/QuestionScreen/age/man/middle-man.svg';
 import SeniorMIcon from '@assets/images/survey/QuestionScreen/age/man/senior-man.svg';
-
 import ChildWIcon from '@assets/images/survey/QuestionScreen/age/woman/child-woman.svg';
 import YouthWIcon from '@assets/images/survey/QuestionScreen/age/woman/youth-woman.svg';
 import AdultWIcon from '@assets/images/survey/QuestionScreen/age/woman/adult-woman.svg';
@@ -39,7 +35,9 @@ import SeniorWIcon from '@assets/images/survey/QuestionScreen/age/woman/senior-w
 const { width } = Dimensions.get('window');
 
 const steps = [
-    { question: 'Какая ваша основная цель?', options: [
+    {
+        question: 'Какая ваша основная цель?',
+        options: [
             { text: 'Снижение веса', icon: BlueArrow },
             { text: 'Набор мышечной массы', icon: RedArrow },
             { text: 'Поддержание текущего веса', icon: GreenArrow },
@@ -70,12 +68,39 @@ const steps = [
     },
 ];
 
-const sections = [30, 80, 130, 180, 230];
-const weightSections = [20, 70, 120, 170, 220];
-const MIN_HEIGHT = 30;
-const MAX_HEIGHT = 230;
-const MIN_WEIGHT = 20;
-const MAX_WEIGHT = 220;
+const numericInputConfig = {
+    height: {
+        min: 30,
+        max: 230,
+        step: 1,
+        unit: 'см',
+        sections: [30, 80, 130, 180, 230],
+        validate: (value) => Number.isInteger(value),
+        format: (value) => `${value} см`
+    },
+    currentWeight: {
+        min: 20,
+        max: 220,
+        step: 0.1,
+        unit: 'кг',
+        sections: [20, 70, 120, 170, 220],
+        validate: (value) => /^\d+(\.\d)?$/.test(value),
+        format: (value) => `${value.toFixed(1)} кг`
+    },
+    desiredWeight: {
+        min: 20,
+        max: 220,
+        step: 0.1,
+        unit: 'кг',
+        sections: [20, 70, 120, 170, 220],
+        validate: (value) => /^\d+(\.\d)?$/.test(value),
+        format: (value) => `${value.toFixed(1)} кг`
+    }
+};
+
+const ageStepIndex = 3;
+const heightStepIndex = 4;
+const currentWeightStepIndex = 5;
 
 export default function QuestionScreen() {
     const navigation = useNavigation();
@@ -93,10 +118,15 @@ export default function QuestionScreen() {
     const [inputValue, setInputValue] = useState('');
     const inputRef = useRef(null);
 
-    const ageStepIndex = 3;
-    const heightStepIndex = 4;
-    const currentWeightStepIndex = 5;
-    const desiredWeightStepIndex = 6;
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20,
+            onPanResponderRelease: (_, gesture) => {
+                if (gesture.dx < -20) handleNextAge();
+                else if (gesture.dx > 20) handlePrevAge();
+            },
+        })
+    ).current;
 
     const getAgeOptions = (gender) => {
         if (gender === 'Женский') {
@@ -117,16 +147,6 @@ export default function QuestionScreen() {
             ];
         }
     };
-
-    const panResponder = useRef(
-        PanResponder.create({
-            onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20,
-            onPanResponderRelease: (_, gesture) => {
-                if (gesture.dx < -20) handleNextAge();
-                else if (gesture.dx > 20) handlePrevAge();
-            },
-        })
-    ).current;
 
     const handleNextAge = () => {
         setAgeIndex((prev) => (prev + 1) % ageOptions.length);
@@ -165,262 +185,139 @@ export default function QuestionScreen() {
         }
     };
 
-    useEffect(() => {
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-            setInputMode(false);
-        });
-
-        return () => {
-            keyboardDidHideListener.remove();
+    const handleSliderChange = (type) => (val) => {
+        const setters = {
+            height: setTempHeight,
+            currentWeight: setTempCurrentWeight,
+            desiredWeight: setTempDesiredWeight
         };
-    }, []);
-
-    useEffect(() => {
-        Keyboard.dismiss();
-        setInputMode(false);
-    }, [step]);
-
-    const getInputType = () => {
-        const type = step === heightStepIndex ? 'height' :
-                    step === currentWeightStepIndex ? 'currentWeight' :
-                    step === desiredWeightStepIndex ? 'desiredWeight' : null;
-        return type;
+        setters[type](val);
     };
 
-    const openInput = () => {
-        const type = getInputType();
+    const handleSliderComplete = (type) => (val) => {
+        const setters = {
+            height: setHeight,
+            currentWeight: setCurrentWeight,
+            desiredWeight: setDesiredWeight
+        };
+        setters[type](val);
+    };
 
-        if (type === 'height') {
-            setInputValue(height.toString());
-        } else if (type === 'currentWeight') {
-            setInputValue(currentWeight.toString());
-        } else if (type === 'desiredWeight') {
-            setInputValue(desiredWeight.toString());
-        }
+    const openInput = (type) => {
+        const valueMap = {
+            height: height,
+            currentWeight: currentWeight,
+            desiredWeight: desiredWeight
+        };
+        setInputValue(valueMap[type].toString());
         setInputMode(true);
         setTimeout(() => inputRef.current?.focus(), 100);
     };
 
     const validateInput = (value, type) => {
         const numValue = parseFloat(value.replace(',', '.'));
+        const config = numericInputConfig[type];
 
         if (isNaN(numValue)) {
             Alert.alert('Ошибка', 'Пожалуйста, введите число');
             return false;
         }
 
-        if (type === 'height') {
-            if (numValue < MIN_HEIGHT || numValue > MAX_HEIGHT) {
-                Alert.alert('Ошибка', `Рост должен быть между ${MIN_HEIGHT} и ${MAX_HEIGHT} см`);
-                return false;
-            }
-            if (!Number.isInteger(numValue)) {
-                Alert.alert('Ошибка', 'Рост должен быть целым числом');
-                return false;
-            }
-        } else {
-            if (numValue < MIN_WEIGHT || numValue > MAX_WEIGHT) {
-                Alert.alert('Ошибка', `Вес должен быть между ${MIN_WEIGHT} и ${MAX_WEIGHT} кг`);
-                return false;
-            }
+        if (numValue < config.min || numValue > config.max) {
+            Alert.alert('Ошибка', `Значение должно быть между ${config.min} и ${config.max} ${config.unit}`);
+            return false;
+        }
 
-            const decimalPart = value.split(/[,.]/)[1];
-            if (decimalPart && decimalPart.length > 1) {
-                Alert.alert('Ошибка', 'Вес должен иметь не более одного знака после запятой');
-                return false;
-            }
+        if (!config.validate(numValue)) {
+            Alert.alert('Ошибка', type === 'height' ? 'Должно быть целое число' : 'Не более одного знака после запятой');
+            return false;
         }
 
         return true;
     };
 
     const handleInputConfirm = () => {
-        const type = getInputType();
+        const type = step === heightStepIndex ? 'height' :
+            step === currentWeightStepIndex ? 'currentWeight' :
+                'desiredWeight';
 
-        if (!validateInput(inputValue, type)) {
-            return;
-        }
+        if (!validateInput(inputValue, type)) return;
 
         const value = parseFloat(inputValue.replace(',', '.'));
-        let validatedValue = value;
+        const config = numericInputConfig[type];
 
         if (type === 'height') {
-            validatedValue = Math.round(value);
+            const validatedValue = Math.round(value);
             setHeight(validatedValue);
             setTempHeight(validatedValue);
-            handleAnswer(`${validatedValue} см`);
+            handleAnswer(config.format(validatedValue));
         } else {
-            validatedValue = parseFloat(value.toFixed(1));
-            if (type === 'currentWeight') {
-                setCurrentWeight(validatedValue);
-                setTempCurrentWeight(validatedValue);
-            } else {
-                setDesiredWeight(validatedValue);
-                setTempDesiredWeight(validatedValue);
-            }
-            handleAnswer(`${validatedValue.toFixed(1)} кг`);
+            const validatedValue = parseFloat(value.toFixed(1));
+            const setter = type === 'currentWeight' ? setCurrentWeight : setDesiredWeight;
+            const tempSetter = type === 'currentWeight' ? setTempCurrentWeight : setTempDesiredWeight;
+            setter(validatedValue);
+            tempSetter(validatedValue);
+            handleAnswer(config.format(validatedValue));
         }
 
         setInputMode(false);
         Keyboard.dismiss();
     };
 
-    const renderInputField = () => {
-        if (!inputMode) return null;
-
-        return (
-            <TouchableOpacity
-                style={styles.inputOverlay}
-                activeOpacity={1}
-                onPress={() => {
-                    setInputMode(false);
-                    Keyboard.dismiss();
-                }}
+    const renderInputField = () => (
+        <TouchableOpacity
+            style={styles.inputOverlay}
+            activeOpacity={1}
+            onPress={() => {
+                setInputMode(false);
+                Keyboard.dismiss();
+            }}
+        >
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={styles.keyboardAvoidingView}
             >
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={styles.keyboardAvoidingView}
-                >
-                    <View style={styles.inputContainer}>
-                        <TextInput
-                            ref={inputRef}
-                            style={styles.input}
-                            value={inputValue}
-                            onChangeText={setInputValue}
-                            keyboardType="numeric"
-                            autoFocus={true}
-                            placeholder={step === heightStepIndex ? "Введите рост (см)" : "Введите вес (кг)"}
-                            placeholderTextColor="#999"
-                        />
-                        <View style={styles.inputButtonsRow}>
-                            <TouchableOpacity
-                                style={styles.okButton}
-                                onPress={handleInputConfirm}
-                            >
-                                <Text style={styles.okButtonText}>OK</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.cancelButton}
-                                onPress={() => {
-                                    setInputMode(false);
-                                    Keyboard.dismiss();
-                                }}
-                            >
-                                <Text style={styles.cancelButtonText}>Отмена</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </KeyboardAvoidingView>
-            </TouchableOpacity>
-        );
-    };
-
-    const renderSlider = () => {
-        const type = getInputType();
-
-        let value, tempValue, min, max, stepSize, unit, sectionsArray;
-
-        if (type === 'height') {
-            value = height;
-            tempValue = tempHeight;
-            min = MIN_HEIGHT;
-            max = MAX_HEIGHT;
-            stepSize = 1;
-            unit = 'см';
-            sectionsArray = sections;
-        } else if (type === 'currentWeight' || type === 'desiredWeight') {
-            value = type === 'currentWeight' ? currentWeight : desiredWeight;
-            tempValue = type === 'currentWeight' ? tempCurrentWeight : tempDesiredWeight;
-            min = MIN_WEIGHT;
-            max = MAX_WEIGHT;
-            stepSize = 0.1;
-            unit = 'кг';
-            sectionsArray = weightSections;
-        }
-
-        return (
-            <View>
-                <TouchableOpacity onPress={openInput}>
-                    <Text style={styles.sliderValue}>
-                        {type === 'height' ?
-                            `${tempValue} ${unit}` :
-                            `${tempValue.toFixed(1)} ${unit}`}
-                    </Text>
-                </TouchableOpacity>
-
-                <View style={styles.sliderWrapper}>
-                    <Slider
-                        style={styles.slider}
-                        minimumValue={min}
-                        maximumValue={max}
-                        value={value}
-                        step={stepSize}
-                        onValueChange={(val) => {
-                            if (type === 'height') setTempHeight(val);
-                            else if (type === 'currentWeight') setTempCurrentWeight(val);
-                            else if (type === 'desiredWeight') setTempDesiredWeight(val);
-                        }}
-                        onSlidingComplete={(val) => {
-                            if (type === 'height') setHeight(val);
-                            else if (type === 'currentWeight') setCurrentWeight(val);
-                            else if (type === 'desiredWeight') setDesiredWeight(val);
-                        }}
-                        minimumTrackTintColor="#3DA0EE"
-                        maximumTrackTintColor="#C1C1C1"
-                        thumbTintColor="#3DA0EE"
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        ref={inputRef}
+                        style={styles.input}
+                        value={inputValue}
+                        onChangeText={setInputValue}
+                        keyboardType="numeric"
+                        autoFocus
+                        placeholder={step === heightStepIndex ? "Введите рост (см)" : "Введите вес (кг)"}
+                        placeholderTextColor="#999"
                     />
-                    <View style={styles.ticksContainer}>
-                        {sectionsArray.map((val, i) => {
-                            const leftPercent = ((val - min) / (max - min)) * 96 + 2;
-                            const isEdge = i === 0 || i === sectionsArray.length - 1;
-                            return (
-                                <React.Fragment key={i}>
-                                    <View
-                                        style={[
-                                            styles.tick,
-                                            isEdge && styles.edgeTick,
-                                            { left: `${leftPercent}%` }
-                                        ]}
-                                    />
-                                    <Text
-                                        style={[
-                                            styles.tickLabel,
-                                            { left: `${leftPercent}%` }
-                                        ]}
-                                    >{val}</Text>
-                                </React.Fragment>
-                            );
-                        })}
+                    <View style={styles.inputButtonsRow}>
+                        <TouchableOpacity style={styles.okButton} onPress={handleInputConfirm}>
+                            <Text style={styles.okButtonText}>OK</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.cancelButton}
+                            onPress={() => {
+                                setInputMode(false);
+                                Keyboard.dismiss();
+                            }}
+                        >
+                            <Text style={styles.cancelButtonText}>Отмена</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-                <TouchableOpacity
-                    style={[
-                        styles.growButton,
-                        selectedAnswers[step] === (
-                            type === 'height' ?
-                                `${value} ${unit}` :
-                                `${value.toFixed(1)} ${unit}`
-                        ) && styles.selectedGrowButton
-                    ]}
-                    onPress={() => {
-                        if (type === 'height') handleAnswer(`${value} ${unit}`);
-                        else handleAnswer(`${value.toFixed(1)} ${unit}`);
-                    }}
-                >
-                    <Text style={[
-                        styles.growButtonText,
-                        selectedAnswers[step] === (
-                            type === 'height' ?
-                                `${value} ${unit}` :
-                                `${value.toFixed(1)} ${unit}`
-                        ) && styles.selectedGrowButtonText
-                    ]}>
-                        Подтвердить
-                    </Text>
-                </TouchableOpacity>
-            </View>
-        );
-    };
+            </KeyboardAvoidingView>
+        </TouchableOpacity>
+    );
+
+    const renderNumericInput = (type) => (
+        <NumericInput
+            type={type}
+            value={type === 'height' ? height : type === 'currentWeight' ? currentWeight : desiredWeight}
+            tempValue={type === 'height' ? tempHeight : type === 'currentWeight' ? tempCurrentWeight : tempDesiredWeight}
+            config={numericInputConfig[type]}
+            onValueChange={handleSliderChange(type)}
+            onSlidingComplete={handleSliderComplete(type)}
+            onInputPress={() => openInput(type)}
+        />
+    );
 
     const selectedGender = selectedAnswers[2] || 'Мужской';
     const ageOptions = getAgeOptions(selectedGender);
@@ -469,23 +366,16 @@ export default function QuestionScreen() {
                             <Text style={styles.ageArrow}>{'>'}</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                        style={[
-                            styles.confirmButton,
-                            selectedAnswers[step] === ageOptions[ageIndex].label && styles.selectedConfirmButton
-                        ]}
-                        onPress={confirmAge}>
-                        <Text style={[
-                            styles.confirmButtonText,
-                            selectedAnswers[step] === ageOptions[ageIndex].label && styles.selectedConfirmButtonText
-                        ]}>
-                            Подтвердить
-                        </Text>
-                    </TouchableOpacity>
+                    <ConfirmButton
+                        selected={selectedAnswers[step] === ageOptions[ageIndex].label}
+                        onPress={confirmAge}
+                    />
                 </View>
             ) : steps[step].options ? (
                 steps[step].options.map((option, idx) => {
                     const isSelected = selectedAnswers[step] === option.text;
+                    const Icon = option.icon;
+
                     return (
                         <TouchableOpacity
                             key={idx}
@@ -496,33 +386,49 @@ export default function QuestionScreen() {
                             onPress={() => handleAnswer(option.text)}
                         >
                             <View style={styles.buttonContent}>
-                                {option.icon && (() => {
-                                    const Icon = option.icon;
-                                    return (
-                                        <View style={styles.iconContainer}>
-                                            <Icon
-                                                width={option.iconSize ? scale(option.iconSize) : moderateScale(32)}
-                                                height={option.iconSize ? scale(option.iconSize) : moderateScale(32)}
-                                                fill={isSelected ? "#fff" : "#000"}
-                                            />
-                                        </View>
-                                    );
-                                })()}
-                                <Text style={[
-                                    styles.buttonText,
-                                    isSelected && styles.selectedButtonText
-                                ]}>
+                                {option.icon && (
+                                    <View style={styles.iconContainer}>
+                                        <Icon
+                                            width={option.iconSize ? scale(option.iconSize) : moderateScale(32)}
+                                            height={option.iconSize ? scale(option.iconSize) : moderateScale(32)}
+                                            fill={isSelected ? "#fff" : "#000"}
+                                        />
+                                    </View>
+                                )}
+                                <Text style={[styles.buttonText, isSelected && styles.selectedButtonText]}>
                                     {option.text}
                                 </Text>
                             </View>
                         </TouchableOpacity>
                     );
                 })
+            ) : step === heightStepIndex ? (
+                <>
+                    {renderNumericInput('height')}
+                    <ConfirmButton
+                        selected={selectedAnswers[step] === numericInputConfig.height.format(height)}
+                        onPress={() => handleAnswer(numericInputConfig.height.format(height))}
+                    />
+                </>
+            ) : step === currentWeightStepIndex ? (
+                <>
+                    {renderNumericInput('currentWeight')}
+                    <ConfirmButton
+                        selected={selectedAnswers[step] === numericInputConfig.currentWeight.format(currentWeight)}
+                        onPress={() => handleAnswer(numericInputConfig.currentWeight.format(currentWeight))}
+                    />
+                </>
             ) : (
-                renderSlider()
+                <>
+                    {renderNumericInput('desiredWeight')}
+                    <ConfirmButton
+                        selected={selectedAnswers[step] === numericInputConfig.desiredWeight.format(desiredWeight)}
+                        onPress={() => handleAnswer(numericInputConfig.desiredWeight.format(desiredWeight))}
+                    />
+                </>
             )}
 
-            {renderInputField()}
+            {inputMode && renderInputField()}
         </View>
     );
 }
@@ -541,10 +447,7 @@ const styles = StyleSheet.create({
         marginBottom: scale(-50),
     },
     backArrow: {
-        width: scale(24),
-        height: scale(24),
         marginRight: scale(10),
-        resizeMode: 'contain',
         marginBottom: verticalScale(30),
     },
     progress: {
@@ -634,79 +537,6 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(20),
         fontWeight: '500',
         textAlign: 'center',
-    },
-    confirmButton: {
-        backgroundColor: '#ffffff',
-        paddingVertical: verticalScale(16),
-        paddingHorizontal: scale(40),
-        borderRadius: scale(15),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    selectedConfirmButton: {
-        backgroundColor: '#3DA0EE',
-        shadowColor: '#3DA0EE',
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-        elevation: 6,
-    },
-    confirmButtonText: {
-        color: '#000',
-        fontSize: moderateScale(18),
-        fontWeight: '600',
-    },
-    selectedConfirmButtonText: {
-        color: '#ffffff',
-    },
-    slider: {
-        width: '85%',
-        transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
-        marginLeft: 'auto',
-        marginRight: 'auto',
-    },
-    sliderValue: {
-        fontSize: moderateScale(20),
-        textAlign: 'center',
-        marginBottom: verticalScale(-5),
-        fontWeight: '600',
-    },
-    sliderWrapper: {
-        width: '100%',
-        height: verticalScale(60),
-        justifyContent: 'center',
-    },
-    ticksContainer: {
-        position: 'absolute',
-        top: 0,
-        left: scale(8),
-        right: scale(12),
-        bottom: 0,
-    },
-    tick: {
-        position: 'absolute',
-        width: scale(2.3),
-        height: verticalScale(12),
-        backgroundColor: '#3DA0EE',
-        top: verticalScale(24),
-        borderRadius: scale(5),
-    },
-    edgeTick: {
-        width: scale(2.5),
-        height: verticalScale(16),
-        top: verticalScale(21.5),
-        backgroundColor: '#3DA0EE',
-    },
-    tickLabel: {
-        position: 'absolute',
-        textAlign: 'center',
-        top: verticalScale(40),
-        fontSize: moderateScale(16),
-        fontWeight: '500',
-        color: '#000000',
-        transform: [{ translateX: -scale(8) }],
     },
     growButton: {
         width: '95%',
