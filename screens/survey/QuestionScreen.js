@@ -6,31 +6,42 @@ import { useNavigation } from '@react-navigation/native';
 import NumericInput from './components/NumericInput';
 import ConfirmButton from './components/ConfirmButton';
 
-// Импорты иконок
+// Стрелки
 import BlueArrow from '@assets/images/survey/QuestionScreen/arrow/blue-arrow.svg';
 import GreenArrow from '@assets/images/survey/QuestionScreen/arrow/green-arrow.svg';
 import RedArrow from '@assets/images/survey/QuestionScreen/arrow/red-arrow.svg';
 import BackArrow from '@assets/images/survey/QuestionScreen/arrow/back-arrow.svg';
+
+// Время
 import OneMonthIcon from '@assets/images/survey/QuestionScreen/time/one-month.svg';
 import OneToThreeMonthsIcon from '@assets/images/survey/QuestionScreen/time/one-to-three-months.svg';
 import ThreeToSixMonthsIcon from '@assets/images/survey/QuestionScreen/time/three-to-six-months.svg';
 import NoDeadlineIcon from '@assets/images/survey/QuestionScreen/time/no-deadline.svg';
+
+// Иконки для гендера
 import ManIcon from '@assets/images/survey/QuestionScreen/gender/man-icon.svg';
 import WomanIcon from '@assets/images/survey/QuestionScreen/gender/woman-icon.svg';
+
+// Иконки для активности
 import SeatIcon from '@assets/images/survey/QuestionScreen/activity/sitting-icon.svg';
 import WalkIcon from '@assets/images/survey/QuestionScreen/activity/walking-icon.svg';
 import RunIcon from '@assets/images/survey/QuestionScreen/activity/running-icon.svg';
 import SportIcon from '@assets/images/survey/QuestionScreen/activity/weightlifting-icon.svg';
+
+// Иконки для возраста (мужские)
 import ChildMIcon from '@assets/images/survey/QuestionScreen/age/man/child-man.svg';
 import YouthMIcon from '@assets/images/survey/QuestionScreen/age/man/youth-man.svg';
 import AdultMIcon from '@assets/images/survey/QuestionScreen/age/man/adult-man.svg';
 import MiddleMIcon from '@assets/images/survey/QuestionScreen/age/man/middle-man.svg';
 import SeniorMIcon from '@assets/images/survey/QuestionScreen/age/man/senior-man.svg';
+
+// Иконки для возраста (женские)
 import ChildWIcon from '@assets/images/survey/QuestionScreen/age/woman/child-woman.svg';
 import YouthWIcon from '@assets/images/survey/QuestionScreen/age/woman/youth-woman.svg';
 import AdultWIcon from '@assets/images/survey/QuestionScreen/age/woman/adult-woman.svg';
 import MiddleWIcon from '@assets/images/survey/QuestionScreen/age/woman/middle-woman.svg';
 import SeniorWIcon from '@assets/images/survey/QuestionScreen/age/woman/senior-woman.svg';
+
 
 const { width } = Dimensions.get('window');
 
@@ -162,9 +173,18 @@ export default function QuestionScreen() {
 
     useEffect(() => {
         if (step === ageStepIndex) {
-            setAgeIndex(0);
+            const selectedGender = selectedAnswers[2] || 'Мужской';
+            const options = getAgeOptions(selectedGender);
+            const prevLabel = selectedAnswers[step];
+            const prevIndex = options.findIndex(o => o.label === prevLabel);
+
+            if (prevIndex >= 0) {
+                setAgeIndex(prevIndex);
+            } else {
+                setAgeIndex(0);
+            }
         }
-    }, [step]);
+    }, [step, selectedAnswers]);
 
     const handleAnswer = (answer) => {
         console.log('Вы выбрали:', answer);
@@ -204,12 +224,7 @@ export default function QuestionScreen() {
     };
 
     const openInput = (type) => {
-        const valueMap = {
-            height: height,
-            currentWeight: currentWeight,
-            desiredWeight: desiredWeight
-        };
-        setInputValue(valueMap[type].toString());
+        setInputValue('');
         setInputMode(true);
         setTimeout(() => inputRef.current?.focus(), 100);
     };
