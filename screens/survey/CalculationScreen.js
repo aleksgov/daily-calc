@@ -22,8 +22,8 @@ export default function CalculationScreen({ navigation }) {
     const [stage, setStage] = useState('progress');
 
     const [fontsLoaded] = useFonts({
-        NotoSans_500Medium,
-        NotoSans_700Bold,
+        NotoSansMedium: NotoSans_500Medium,
+        NotoSansBold: NotoSans_700Bold,
     });
 
     useEffect(() => {
@@ -75,7 +75,7 @@ export default function CalculationScreen({ navigation }) {
                             {
                                 text: 'Посмотреть',
                                 style: {
-                                    fontFamily: 'NotoSans_700Bold',
+                                    fontFamily: 'NotoSansBold',
                                     fontSize: moderateScale(18),
                                     fill: '#ffffff',
                                     dy: moderateScale(-5),
@@ -84,7 +84,7 @@ export default function CalculationScreen({ navigation }) {
                             {
                                 text: 'план',
                                 style: {
-                                    fontFamily: 'NotoSans_700Bold',
+                                    fontFamily: 'NotoSansBold',
                                     fontSize: moderateScale(18),
                                     fill: '#ffffff',
                                     dy: moderateScale(20),
@@ -184,12 +184,12 @@ const styles = StyleSheet.create({
         zIndex: 4,
     },
     captionLine1: {
-        fontFamily: 'NotoSans_500Medium',
+        fontFamily: 'NotoSansMedium',
         fontSize: moderateScale(30),
         color: '#000',
     },
     captionLine2: {
-        fontFamily: 'NotoSans_500Medium',
+        fontFamily: 'NotoSansMedium',
         fontSize: moderateScale(38),
         color: '#000',
         marginTop: moderateScale(-15),

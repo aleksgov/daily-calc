@@ -8,6 +8,7 @@ import StartScreen from './screens/survey/StartScreen';
 import QuestionScreen from './screens/survey/QuestionScreen';
 import CalculationScreen from './screens/survey/CalculationScreen';
 import MainScreen from './screens/main-app/MainScreen';
+import { FontLoader } from './FontLoader';
 import { preloadAssets } from './assets';
 
 const Stack = createStackNavigator();
@@ -19,7 +20,7 @@ export default function App() {
     useEffect(() => {
         async function prepare() {
             try {
-                await AsyncStorage.clear();
+                //await AsyncStorage.clear();
                 await SplashScreen.preventAutoHideAsync();
                 await preloadAssets();
 
@@ -52,9 +53,26 @@ export default function App() {
             >
                 {isFirstLaunch ? (
                     <>
-                        <Stack.Screen name="Start" component={StartScreen} />
-                        <Stack.Screen name="Quest" component={QuestionScreen} />
-                        <Stack.Screen name="Calculation" component={CalculationScreen} />
+                        <Stack.Screen name="Start">
+                            {props => (
+                                <FontLoader>
+                                    <StartScreen {...props} />
+                                </FontLoader>
+                            )}
+                        </Stack.Screen>
+
+                        <Stack.Screen name="Quest">
+                            {props => (
+                                <FontLoader>
+                                    <QuestionScreen {...props} />
+                                </FontLoader>
+                            )}
+                        </Stack.Screen>
+
+                        <Stack.Screen
+                            name="Calculation"
+                            component={CalculationScreen}
+                        />
                         <Stack.Screen name="Main" component={MainScreen} />
                     </>
                 ) : (

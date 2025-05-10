@@ -508,6 +508,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: '#000',
+        fontFamily: 'NotoSansMedium',
         fontSize: moderateScale(18, 0.1),
         fontWeight: '600',
         textAlign: 'left',
