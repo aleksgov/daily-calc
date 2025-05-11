@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components/native';
-import {moderateScale, scale, verticalScale} from 'react-native-size-matters';
+import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+import {GenericList} from "./components/GenericList";
 
 const Container = styled.View`
     flex: 1;
@@ -61,8 +62,38 @@ const AddProductText = styled.Text`
     font-family: NotoSansMedium;
 `;
 
+const ListWrapper = styled.View`
+    flex: 1;
+    margin-top: -${verticalScale(60)}px;
+`;
+
+const CALORIES = {
+    Банан: 89,
+    Яблоко: 65,
+    Сосиска: 204,
+    Йогурт: 120,
+};
+
 export function MealDetailScreen({ route }) {
     const { mealName } = route.params;
+    const [products, setProducts] = useState(['Банан', 'Яблоко', 'Сосиска', 'Йогурт']); // Начальный список продуктов
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const addProduct = () => {
+        const newProduct = prompt('Введите название продукта:');
+        if (newProduct) {
+            setProducts([...products, newProduct]);
+        }
+    };
+
+    const filtered = products.filter(p =>
+        p.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const items = filtered.map(name => ({
+        name,
+        calories: CALORIES[name] ?? 0
+    }));
 
     return (
         <Container>
@@ -79,9 +110,16 @@ export function MealDetailScreen({ route }) {
                 </TabButton>
             </ButtonRow>
 
-            <AddProductButton onPress={() => console.log('Добавить продукт')}>
+            <AddProductButton onPress={addProduct}>
                 <AddProductText>Добавить продукт</AddProductText>
             </AddProductButton>
+
+            <ListWrapper>
+                <GenericList
+                    items={items}
+                    onAddItem={item => console.log('Добавлено:', item.name)}
+                />
+            </ListWrapper>
         </Container>
     );
 }
