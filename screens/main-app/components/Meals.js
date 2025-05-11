@@ -50,7 +50,7 @@ const PlusText = styled.Text`
     font-family: NotoSansMedium;
     color: #fff;
     font-size: ${scale(24)}px;
-    line-height: ${scale(29)}px;
+    line-height: ${scale(27.5)}px;
     text-align: center;
 `;
 
@@ -62,7 +62,7 @@ const MealName = styled.Text`
 
 const meals = ['Завтрак', 'Обед', 'Ужин', 'Перекус'];
 
-export const Meals = () => (
+export const Meals = ({ navigation }) => (
     <Wrapper>
         <Title>Приёмы пищи</Title>
         <Container>
@@ -72,7 +72,9 @@ export const Meals = () => (
                     style={index === meals.length - 1 ? { borderBottomWidth: 0 } : {}}
                 >
                     <MealName>{name}</MealName>
-                    <PlusButton onPress={() => console.log(`Добавить ${name}`)}>
+                    <PlusButton
+                      onPress={() => navigation.navigate('MealDetail', { mealName: name })}
+                    >
                         <PlusText>+</PlusText>
                     </PlusButton>
                 </Section>

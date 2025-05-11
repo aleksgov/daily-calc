@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ReferenceScreen } from './ReferenceScreen';
-import { DiaryScreen } from './DiaryScreen';
+import DiaryStack from './DiaryStack';
 import { SettingsScreen } from './SettingsScreen';
 import {scale, verticalScale} from "react-native-size-matters";
 
@@ -38,7 +38,7 @@ export default function MainScreen() {
             />
             <Tab.Screen
                 name="Diary"
-                component={DiaryScreen}
+                component={DiaryStack}
                 options={{
                     title: 'Дневник',
                     tabBarIcon: ({ focused }) => getTabBarIcon(DiaryIcon, DiaryIconActive, focused),

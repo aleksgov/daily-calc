@@ -4,10 +4,10 @@ import {moderateScale, scale, verticalScale} from "react-native-size-matters";
 import { Box } from './components/Box';
 import {Meals} from "./components/Meals";
 
-export const DiaryScreen = () => (
+export const DiaryScreen = ({ navigation }) => (
     <View style={styles.container}>
         <Box/>
-        <Meals/>
+        <Meals navigation={navigation}/>
     </View>
 );
 
