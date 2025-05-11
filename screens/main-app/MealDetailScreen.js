@@ -51,14 +51,15 @@ const TabButton = styled.TouchableOpacity`
     height: ${verticalScale(40)}px;
     margin: 0;
     border-radius: ${scale(10)}px;
-    border: 1px solid #8C8C8C;
+    border: 1px solid ${props => props.isActive ? '#FFA834' : '#8C8C8C'};
+    background-color: ${props => props.isActive ? '#FFA834' : 'transparent'};
     align-items: center;
     justify-content: center;
 `;
 
 const TabText = styled.Text`
     font-size: ${scale(16)}px;
-    color: #8C8C8C;
+    color: ${props => props.isActive ? '#FFFFFF' : '#8C8C8C'};
     font-family: NotoSansMedium;
 `;
 
@@ -82,15 +83,24 @@ const ListWrapper = styled.View`
 `;
 
 const CALORIES = {
-    Банан: 89,
-    Яблоко: 65,
-    Сосиска: 204,
-    Йогурт: 120,
+    'Банан': 89,
+    'Яблоко': 65,
+    'Сосиска': 204,
+    'Йогурт': 120,
+};
+
+const RECIPES_CALORIES = {
+    'Паста Карбонара': 450,
+    'Салат Цезарь': 320,
+    'Омлет с овощами': 280,
+    'Гречневая каша с курицей': 350,
 };
 
 export function MealDetailScreen({ route }) {
     const { mealName } = route.params;
-    const [products, setProducts] = useState(['Банан', 'Яблоко', 'Сосиска', 'Йогурт']); // Начальный список продуктов
+    const [activeTab, setActiveTab] = useState('products');
+    const [products, setProducts] = useState(['Банан', 'Яблоко', 'Сосиска', 'Йогурт']);
+    const recipes = ['Паста Карбонара', 'Салат Цезарь', 'Омлет с овощами', 'Гречневая каша с курицей'];
     const [searchQuery, setSearchQuery] = useState('');
 
     const addProduct = () => {
@@ -100,13 +110,15 @@ export function MealDetailScreen({ route }) {
         }
     };
 
-    const filtered = products.filter(p =>
-        p.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredItems = activeTab === 'products'
+        ? products.filter(p => p.toLowerCase().includes(searchQuery.toLowerCase()))
+        : recipes.filter(r => r.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const items = filtered.map(name => ({
+    const items = filteredItems.map(name => ({
         name,
-        calories: CALORIES[name] ?? 0
+        calories: activeTab === 'products'
+            ? CALORIES[name] ?? 0
+            : RECIPES_CALORIES[name] ?? 0
     }));
 
     return (
@@ -126,17 +138,25 @@ export function MealDetailScreen({ route }) {
             </SearchBarContainer>
 
             <ButtonRow>
-                <TabButton>
-                    <TabText>Продукты</TabText>
+                <TabButton
+                    onPress={() => setActiveTab('products')}
+                    isActive={activeTab === 'products'}
+                >
+                    <TabText isActive={activeTab === 'products'}>Продукты</TabText>
                 </TabButton>
 
-                <TabButton>
-                    <TabText>Рецепты</TabText>
+                <TabButton
+                    onPress={() => setActiveTab('recipes')}
+                    isActive={activeTab === 'recipes'}
+                >
+                    <TabText isActive={activeTab === 'recipes'}>Рецепты</TabText>
                 </TabButton>
             </ButtonRow>
 
             <AddProductButton onPress={addProduct}>
-                <AddProductText>Добавить продукт</AddProductText>
+                <AddProductText>
+                    {activeTab === 'products' ? 'Добавить продукт' : 'Добавить рецепт'}
+                </AddProductText>
             </AddProductButton>
 
             <ListWrapper>

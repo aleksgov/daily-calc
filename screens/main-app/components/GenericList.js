@@ -26,6 +26,8 @@ const ItemText = styled.Text`
     font-family: NotoSansMedium;
     font-size: ${scale(16)}px;
     margin-left: ${scale(5)}px;
+    flex-shrink: 1;
+    max-width: 65%;
 `;
 
 const RightBlock = styled.View`
@@ -70,7 +72,12 @@ export const GenericList = ({
         <Container style={containerStyle}>
             {items.map((item, index) => (
                 <Section key={item.id || item.name} isLast={index === items.length - 1}>
-                    <ItemText>{item.name}</ItemText>
+                    <ItemText
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                    >
+                        {item.name}
+                    </ItemText>
                     <RightBlock>
                         {typeof item.calories === 'number' && (
                             <CalorieText>{item.calories} ккал</CalorieText>
