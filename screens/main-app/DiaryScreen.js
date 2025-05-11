@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import {moderateScale, scale, verticalScale} from "react-native-size-matters";
+import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 import { Box } from './components/Box';
-import {Meals} from "./components/Meals";
+import { Meals } from "./components/Meals";
 
 export const DiaryScreen = ({ navigation }) => (
     <View style={styles.container}>

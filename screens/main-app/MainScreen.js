@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ReferenceScreen } from './ReferenceScreen';
 import DiaryStack from './DiaryStack';
 import { SettingsScreen } from './SettingsScreen';
-import {scale, verticalScale} from "react-native-size-matters";
+import { scale, verticalScale } from "react-native-size-matters";
 
 import ReferenceIcon from '@assets/images/main-app/navigation-bar/reference.svg';
 import ReferenceIconActive from '@assets/images/main-app/navigation-bar/reference-active.svg';

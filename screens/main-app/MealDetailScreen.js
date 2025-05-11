@@ -3,6 +3,8 @@ import styled from 'styled-components/native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import {GenericList} from "./components/GenericList";
 
+import SearchIcon from '@assets/images/main-app/diary-screen/meal-detail-screen/search.svg';
+
 const Container = styled.View`
     flex: 1;
     background: #fff;
@@ -17,12 +19,24 @@ const Header = styled.Text`
     margin-left: ${moderateScale(4)}px;
 `;
 
-const SearchBar = styled.TextInput`
+const SearchBarContainer = styled.View`
+    flex-direction: row;
+    align-items: center;
     height: ${verticalScale(40)}px;
     border: 1px solid #ccc;
     border-radius: ${scale(8)}px;
-    padding: 0 ${scale(10)}px;
     margin-bottom: ${verticalScale(18)}px;
+    padding-left: ${scale(18)}px;
+`;
+
+const StyledSearchIcon = styled(SearchIcon)`
+    margin-right: ${scale(5)}px;
+`;
+
+const SearchInput = styled.TextInput`
+    flex: 1;
+    height: 100%;
+    padding: 0 ${scale(10)}px;
     font-size: ${scale(16)}px;
 `;
 
@@ -98,7 +112,18 @@ export function MealDetailScreen({ route }) {
     return (
         <Container>
             <Header>{mealName}</Header>
-            <SearchBar placeholder="Поиск..." />
+
+            <SearchBarContainer>
+                <StyledSearchIcon
+                    width={scale(20)}
+                    height={scale(20)}
+                />
+                <SearchInput
+                    placeholder="Поиск..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+            </SearchBarContainer>
 
             <ButtonRow>
                 <TabButton>
