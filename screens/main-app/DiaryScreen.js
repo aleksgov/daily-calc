@@ -3,9 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import { moderateScale, scale, verticalScale } from "react-native-size-matters";
 import { Box } from './components/Box';
 import { Meals } from "./components/Meals";
+import { WeekCalendar } from './components/WeekCalendar';
 
 export const DiaryScreen = ({ navigation }) => (
     <View style={styles.container}>
+        <WeekCalendar/>
         <Box/>
         <Meals navigation={navigation}/>
     </View>

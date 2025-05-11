@@ -56,8 +56,8 @@ const PlusButton = styled.TouchableOpacity`
 const PlusText = styled.Text`
     font-family: NotoSansMedium;
     color: #fff;
-    font-size: ${scale(24)}px;
-    line-height: ${scale(27.5)}px;
+    font-size: ${moderateScale(24, 0.5)}px;
+    line-height: ${moderateScale(30, 0.5)}px;
 `;
 
 export const GenericList = ({
