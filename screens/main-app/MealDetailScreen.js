@@ -79,6 +79,7 @@ const AddProductText = styled.Text`
 
 const ListWrapper = styled.View`
     flex: 1;
+    height: ${verticalScale(200)}px;
     margin-top: -${verticalScale(60)}px;
 `;
 
@@ -99,7 +100,7 @@ const RECIPES_CALORIES = {
 export function MealDetailScreen({ route }) {
     const { mealName } = route.params;
     const [activeTab, setActiveTab] = useState('products');
-    const [products, setProducts] = useState(['Банан', 'Яблоко', 'Сосиска', 'Йогурт']);
+    const [products, setProducts] = useState(['Банан', 'Яблоко', 'Сосиска', 'Йогурт', 'Помидор']);
     const recipes = ['Паста Карбонара', 'Салат Цезарь', 'Омлет с овощами', 'Гречневая каша с курицей'];
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -163,6 +164,8 @@ export function MealDetailScreen({ route }) {
                 <GenericList
                     items={items}
                     onAddItem={item => console.log('Добавлено:', item.name)}
+                    containerStyle={{ height: verticalScale(200),}}
+                    scrollEnabled={items.length > 4}
                 />
             </ListWrapper>
         </Container>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { GenericList } from './GenericList';
+import {verticalScale} from "react-native-size-matters";
 
 const meals = [
     { name: 'Завтрак', id: 1 },
@@ -13,5 +14,7 @@ export const Meals = ({ navigation }) => (
         title="Приёмы пищи"
         items={meals}
         onAddItem={(item) => navigation.navigate('MealDetail', { mealName: item.name })}
+        containerStyle={{ height: verticalScale(200) }}
+        scrollEnabled={meals.length > 4}
     />
 );
