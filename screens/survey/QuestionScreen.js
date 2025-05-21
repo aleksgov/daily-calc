@@ -118,13 +118,9 @@ const getAgeLabel = (age) => {
     if (n >= 11 && n <= 14) return 'лет';
 
     n = age % 10;
-    switch(n) {
-        case 1: return 'год';
-        case 2:
-        case 3:
-        case 4: return 'года';
-        default: return 'лет';
-    }
+    return n === 1 ? 'год'
+        : [2, 3, 4].includes(n) ? 'года'
+            : 'лет';
 };
 
 

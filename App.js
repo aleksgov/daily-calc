@@ -11,6 +11,7 @@ import MainScreen from './screens/main-app/MainScreen';
 import { FontLoader } from './FontLoader';
 import { preloadAssets } from './assets';
 import { initDatabase } from "./database";
+import { CalorieProvider } from './screens/survey/components/CalorieContext';
 
 const Stack = createStackNavigator();
 
@@ -27,7 +28,7 @@ export default function App() {
     useEffect(() => {
         async function prepare() {
             try {
-                await AsyncStorage.clear();
+                //await AsyncStorage.clear();
                 await SplashScreen.preventAutoHideAsync();
                 await preloadAssets();
 
@@ -51,41 +52,43 @@ export default function App() {
     }
 
     return (
-        <NavigationContainer>
-            <Stack.Navigator
-                screenOptions={{
-                    headerShown: false,
-                    animationEnabled: false
-                }}
-            >
-                {isFirstLaunch ? (
-                    <>
-                        <Stack.Screen name="Start">
-                            {props => (
-                                <FontLoader>
-                                    <StartScreen {...props} />
-                                </FontLoader>
-                            )}
-                        </Stack.Screen>
+        <CalorieProvider>
+            <NavigationContainer>
+                <Stack.Navigator
+                    screenOptions={{
+                        headerShown: false,
+                        animationEnabled: false
+                    }}
+                >
+                    {isFirstLaunch ? (
+                        <>
+                            <Stack.Screen name="Start">
+                                {props => (
+                                    <FontLoader>
+                                        <StartScreen {...props} />
+                                    </FontLoader>
+                                )}
+                            </Stack.Screen>
 
-                        <Stack.Screen name="Quest">
-                            {props => (
-                                <FontLoader>
-                                    <QuestionScreen {...props} />
-                                </FontLoader>
-                            )}
-                        </Stack.Screen>
+                            <Stack.Screen name="Quest">
+                                {props => (
+                                    <FontLoader>
+                                        <QuestionScreen {...props} />
+                                    </FontLoader>
+                                )}
+                            </Stack.Screen>
 
-                        <Stack.Screen
-                            name="Calculation"
-                            component={CalculationScreen}
-                        />
+                            <Stack.Screen
+                                name="Calculation"
+                                component={CalculationScreen}
+                            />
+                            <Stack.Screen name="Main" component={MainScreen} />
+                        </>
+                    ) : (
                         <Stack.Screen name="Main" component={MainScreen} />
-                    </>
-                ) : (
-                    <Stack.Screen name="Main" component={MainScreen} />
-                )}
-            </Stack.Navigator>
-        </NavigationContainer>
+                    )}
+                </Stack.Navigator>
+            </NavigationContainer>
+            </CalorieProvider>
     );
 }

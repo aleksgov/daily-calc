@@ -8,6 +8,7 @@ import { useFonts, NotoSans_500Medium, NotoSans_700Bold } from '@expo-google-fon
 import Sun from './components/Sun';
 
 import { calculateTDEE } from './components/calorie';
+import {useRoute} from "@react-navigation/native";
 
 const PROGRESS_CIRCLE_SIZE = scale(130);
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -23,10 +24,50 @@ export default function CalculationScreen({ navigation }) {
     const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
     const [stage, setStage] = useState('progress');
 
+    const route = useRoute();
+    const { answers } = route.params;
+    const [calorieGoal, setCalorieGoal] = useState(0);
+
+    const activityLevels = {
+        'Минимальный (сидячий образ жизни)': 1.2,
+        'Низкий (1–2 тренировки в неделю или много ходьбы)': 1.375,
+        'Средний (3–5 тренировок в неделю)': 1.55,
+        'Высокий (интенсивные тренировки, физическая работа или спорт)': 1.725,
+    };
+
+    const adjustByGoal = (tdee, goal) => {
+        switch(goal) {
+            case 'Снижение веса': return tdee - 400;
+            case 'Набор мышечной массы': return tdee + 500;
+            default: return tdee;
+        }
+    };
+
     const [fontsLoaded] = useFonts({
         NotoSansMedium: NotoSans_500Medium,
         NotoSansBold: NotoSans_700Bold,
     });
+
+    useEffect(() => {
+        if (progress >= 1 && stage === 'transition') {
+            // Извлечение данных
+            const weight = parseFloat(answers[5].replace(' кг', ''));
+            const height = parseInt(answers[4].replace(' см', ''));
+            const age = parseInt(answers[3]);
+            const gender = answers[2];
+            const activity = answers[7];
+            const goal = answers[0];
+
+            // Расчет
+            const pal = activityLevels[activity] || 1.2;
+            const tdee = calculateTDEE(weight, height, age, gender, pal);
+            const finalCalories = adjustByGoal(tdee, goal);
+
+            setCalorieGoal(finalCalories);
+
+            AsyncStorage.setItem('calorieGoal', String(finalCalories));
+        }
+    }, [stage]);
 
     useEffect(() => {
         if (progress >= 1) {
@@ -70,7 +111,7 @@ export default function CalculationScreen({ navigation }) {
                     <Sun
                         onStart={() => {
                             AsyncStorage.setItem('@first_launch', 'false');
-                            navigation.replace('Main');
+                            navigation.replace('Main', { calorieGoal });
                         }}
                         offsetY={moderateScale(50)}
                         labelBlocks={[
