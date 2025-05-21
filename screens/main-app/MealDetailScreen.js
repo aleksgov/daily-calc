@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components/native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
 import { GenericList } from './components/GenericList';
 import SearchIcon from '@assets/images/main-app/diary-screen/meal-detail-screen/search.svg';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { getProducts, getRecipes, addProduct as dbAddProduct, addRecipe as dbAddRecipe } from '../../database';
+import { getProducts, getRecipes } from '../../database';
 
 const Container = styled.View`
     flex: 1;
@@ -70,6 +71,7 @@ const AddProductButton = styled.TouchableOpacity`
     background: #3da0ee;
     align-items: center;
     justify-content: center;
+    margin-bottom: ${verticalScale(12)}px;
 `;
 
 const AddProductText = styled.Text`
@@ -84,7 +86,7 @@ const ListWrapper = styled.View`
     margin-top: -${verticalScale(60)}px;
 `;
 
-export function MealDetailScreen({ route }) {
+export function MealDetailScreen({ route, navigation }) {
     const { mealName } = route.params;
     const [activeTab, setActiveTab] = useState('products');
     const [products, setProducts] = useState([]);
@@ -130,52 +132,32 @@ export function MealDetailScreen({ route }) {
         }
     };
 
-    // При добавлении нового продукта или рецепта в БД
-    const onAdd = async () => {
-        const newName = prompt(
-            `Введите название ${activeTab === 'products' ? 'продукта' : 'рецепта'}:`
-        );
-        if (!newName) return;
-
-        const calories = Number(prompt('Сколько ккал?')) || 0;
-
+    // При переключении вкладки подгружаем нужные данные
+    useEffect(() => {
         if (activeTab === 'products') {
-            const exampleProduct = {
-                name: newName,
-                calories,
-                fats: 0,
-                proteins: 0,
-                carbohydrates: 0,
-                product_type_id: 1
-            };
-            try {
-                await dbAddProduct(exampleProduct);
-                await loadProducts();
-            } catch (error) {
-                console.error('Не удалось добавить продукт:', error);
-            }
+            loadProducts();
         } else {
-            const exampleRecipe = {
-                name: newName,
-                calories,
-                fats: 0,
-                proteins: 0,
-                carbohydrates: 0,
-                diet_type_id: 1
-            };
-            try {
-                await dbAddRecipe(exampleRecipe);
-                await loadRecipes();
-            } catch (error) {
-                console.error('Не удалось добавить рецепт:', error);
-            }
+            loadRecipes();
         }
+    }, [activeTab]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (activeTab === 'products') {
+                loadProducts();
+            } else {
+                loadRecipes();
+            }
+        }, [activeTab])
+    );
+
+    const onAdd = () => {
+        navigation.navigate('AddProduct');
     };
 
     // Фильтрация списка по поисковой строке
     const filteredItems = (activeTab === 'products' ? products : recipes).filter(
-        item =>
-            item.name.toLowerCase().includes(searchQuery.toLowerCase())
+        item => item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const items = filteredItems.map(item => ({
