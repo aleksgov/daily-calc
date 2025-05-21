@@ -10,12 +10,19 @@ import CalculationScreen from './screens/survey/CalculationScreen';
 import MainScreen from './screens/main-app/MainScreen';
 import { FontLoader } from './FontLoader';
 import { preloadAssets } from './assets';
+import { initDatabase } from "./database";
 
 const Stack = createStackNavigator();
 
 export default function App() {
     const [isReady, setIsReady] = useState(false);
     const [isFirstLaunch, setIsFirstLaunch] = useState(null);
+
+    useEffect(() => {
+        initDatabase()
+            .then(() => console.log('initDatabase: OK'))
+            .catch(err => console.error('initDatabase Error:', err));
+    }, []);
 
     useEffect(() => {
         async function prepare() {

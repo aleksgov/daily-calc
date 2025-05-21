@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components/native';
 import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
-import {GenericList} from "./components/GenericList";
-
+import { GenericList } from './components/GenericList';
 import SearchIcon from '@assets/images/main-app/diary-screen/meal-detail-screen/search.svg';
+
+import { getProducts, getRecipes, addProduct as dbAddProduct, addRecipe as dbAddRecipe } from '../../database';
 
 const Container = styled.View`
     flex: 1;
@@ -51,22 +52,22 @@ const TabButton = styled.TouchableOpacity`
     height: ${verticalScale(40)}px;
     margin: 0;
     border-radius: ${scale(10)}px;
-    border: 1px solid ${props => props.isActive ? '#FFA834' : '#8C8C8C'};
-    background-color: ${props => props.isActive ? '#FFA834' : 'transparent'};
+    border: 1px solid ${props => (props.isActive ? '#FFA834' : '#8C8C8C')};
+    background-color: ${props => (props.isActive ? '#FFA834' : 'transparent')};
     align-items: center;
     justify-content: center;
 `;
 
 const TabText = styled.Text`
     font-size: ${scale(16)}px;
-    color: ${props => props.isActive ? '#FFFFFF' : '#8C8C8C'};
+    color: ${props => (props.isActive ? '#FFFFFF' : '#8C8C8C')};
     font-family: NotoSansMedium;
 `;
 
 const AddProductButton = styled.TouchableOpacity`
     height: ${verticalScale(40)}px;
     border-radius: ${scale(8)}px;
-    background: #3DA0EE;
+    background: #3da0ee;
     align-items: center;
     justify-content: center;
 `;
@@ -83,43 +84,104 @@ const ListWrapper = styled.View`
     margin-top: -${verticalScale(60)}px;
 `;
 
-const CALORIES = {
-    'Банан': 89,
-    'Яблоко': 65,
-    'Сосиска': 204,
-    'Йогурт': 120,
-};
-
-const RECIPES_CALORIES = {
-    'Паста Карбонара': 450,
-    'Салат Цезарь': 320,
-    'Омлет с овощами': 280,
-    'Гречневая каша с курицей': 350,
-};
-
 export function MealDetailScreen({ route }) {
     const { mealName } = route.params;
     const [activeTab, setActiveTab] = useState('products');
-    const [products, setProducts] = useState(['Банан', 'Яблоко', 'Сосиска', 'Йогурт', 'Помидор']);
-    const recipes = ['Паста Карбонара', 'Салат Цезарь', 'Омлет с овощами', 'Гречневая каша с курицей'];
+    const [products, setProducts] = useState([]);
+    const [recipes, setRecipes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const addProduct = () => {
-        const newProduct = prompt('Введите название продукта:');
-        if (newProduct) {
-            setProducts([...products, newProduct]);
+    // Загрузка данных при монтировании и при смене вкладки
+    useEffect(() => {
+        if (activeTab === 'products') {
+            loadProducts();
+        } else {
+            loadRecipes();
+        }
+    }, [activeTab]);
+
+    // Получаем все продукты
+    const loadProducts = async () => {
+        try {
+            const rows = await getProducts();
+            const formatted = rows.map(item => ({
+                id: item.id,
+                name: item.name,
+                calories: item.calories
+            }));
+            setProducts(formatted);
+        } catch (err) {
+            console.error('Ошибка загрузки продуктов:', err);
         }
     };
 
-    const filteredItems = activeTab === 'products'
-        ? products.filter(p => p.toLowerCase().includes(searchQuery.toLowerCase()))
-        : recipes.filter(r => r.toLowerCase().includes(searchQuery.toLowerCase()));
+    // Получаем все рецепты
+    const loadRecipes = async () => {
+        try {
+            const rows = await getRecipes();
+            const formatted = rows.map(item => ({
+                id: item.id,
+                name: item.name,
+                calories: item.calories
+            }));
+            setRecipes(formatted);
+        } catch (err) {
+            console.error('Ошибка загрузки рецептов:', err);
+        }
+    };
 
-    const items = filteredItems.map(name => ({
-        name,
-        calories: activeTab === 'products'
-            ? CALORIES[name] ?? 0
-            : RECIPES_CALORIES[name] ?? 0
+    // При добавлении нового продукта или рецепта в БД
+    const onAdd = async () => {
+        const newName = prompt(
+            `Введите название ${activeTab === 'products' ? 'продукта' : 'рецепта'}:`
+        );
+        if (!newName) return;
+
+        const calories = Number(prompt('Сколько ккал?')) || 0;
+
+        if (activeTab === 'products') {
+            const exampleProduct = {
+                name: newName,
+                calories,
+                fats: 0,
+                proteins: 0,
+                carbohydrates: 0,
+                product_type_id: 1
+            };
+            try {
+                await dbAddProduct(exampleProduct);
+                await loadProducts();
+            } catch (error) {
+                console.error('Не удалось добавить продукт:', error);
+            }
+        } else {
+            const exampleRecipe = {
+                name: newName,
+                calories,
+                fats: 0,
+                proteins: 0,
+                carbohydrates: 0,
+                diet_type_id: 1
+            };
+            try {
+                await dbAddRecipe(exampleRecipe);
+                await loadRecipes();
+            } catch (error) {
+                console.error('Не удалось добавить рецепт:', error);
+            }
+        }
+    };
+
+    // Фильтрация списка по поисковой строке
+    const filteredItems = (activeTab === 'products' ? products : recipes).filter(
+        item =>
+            item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const items = filteredItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        calories: item.calories
     }));
 
     return (
@@ -154,7 +216,7 @@ export function MealDetailScreen({ route }) {
                 </TabButton>
             </ButtonRow>
 
-            <AddProductButton onPress={addProduct}>
+            <AddProductButton onPress={onAdd}>
                 <AddProductText>
                     {activeTab === 'products' ? 'Добавить продукт' : 'Добавить рецепт'}
                 </AddProductText>
@@ -163,8 +225,8 @@ export function MealDetailScreen({ route }) {
             <ListWrapper>
                 <GenericList
                     items={items}
-                    onAddItem={item => console.log('Добавлено:', item.name)}
-                    containerStyle={{ height: verticalScale(200),}}
+                    onAddItem={item => console.log('Добавлено в приём пищи:', item.name)}
+                    containerStyle={{ height: verticalScale(200) }}
                     scrollEnabled={items.length > 4}
                 />
             </ListWrapper>
