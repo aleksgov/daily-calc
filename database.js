@@ -101,6 +101,8 @@ export async function initDatabase() {
       ('Веганский'), ('Вегетарианский'), ('Низкоуглеводный'),
       ('Мало жира'), ('Низкокалорийный'), ('Высокобелковый');
 
+    INSERT OR IGNORE INTO meal_types (name) VALUES
+      ('Завтрак'), ('Обед'), ('Ужин'), ('Перекус');
       
   `)
         .then(() => {
@@ -151,6 +153,10 @@ export async function getFirst(sql, params = []) {
     const database = await getDbConnection();
     const row = await database.getFirstAsync(sql, params);
     return row;
+}
+
+export async function getMealTypes() {
+    return getAll('SELECT id, name FROM meal_types;', []);
 }
 
 // ==================== ОПЕРАЦИИ С ПРОДУКТАМИ ====================
