@@ -113,18 +113,37 @@ const ageStepIndex = 3;
 const heightStepIndex = 4;
 const currentWeightStepIndex = 5;
 
+const getAgeLabel = (age) => {
+    let n = age % 100;
+    if (n >= 11 && n <= 14) return 'лет';
+
+    n = age % 10;
+    switch(n) {
+        case 1: return 'год';
+        case 2:
+        case 3:
+        case 4: return 'года';
+        default: return 'лет';
+    }
+};
+
+
 export default function QuestionScreen() {
     const navigation = useNavigation();
     const [step, setStep] = useState(0);
     const totalSteps = steps.length;
+
     const [height, setHeight] = useState(130);
     const [tempHeight, setTempHeight] = useState(130);
     const [currentWeight, setCurrentWeight] = useState(70);
     const [tempCurrentWeight, setTempCurrentWeight] = useState(70);
     const [desiredWeight, setDesiredWeight] = useState(70);
     const [tempDesiredWeight, setTempDesiredWeight] = useState(70);
+
     const [selectedAnswers, setSelectedAnswers] = useState({});
-    const [ageIndex, setAgeIndex] = useState(0);
+
+    const [age, setAge] = useState(18);
+
     const [inputMode, setInputMode] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const inputRef = useRef(null);
@@ -133,75 +152,59 @@ export default function QuestionScreen() {
         PanResponder.create({
             onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 20,
             onPanResponderRelease: (_, gesture) => {
-                if (gesture.dx < -20) handleNextAge();
-                else if (gesture.dx > 20) handlePrevAge();
+                if (gesture.dx < -20) {
+                    setAge(prev => Math.max(1, prev - 1)); // минимум 1 год
+                } else if (gesture.dx > 20) {
+                    setAge(prev => Math.min(100, prev + 1)); // максимум 100 лет
+                }
             },
         })
     ).current;
 
-    const getAgeOptions = (gender) => {
+    const getAgeIcon = (gender, ageValue) => {
         if (gender === 'Женский') {
-            return [
-                { label: 'До 18 лет', icon: ChildWIcon },
-                { label: '18-25 лет', icon: YouthWIcon },
-                { label: '26-35 лет', icon: AdultWIcon },
-                { label: '36-50 лет', icon: MiddleWIcon },
-                { label: 'Старше 50 лет', icon: SeniorWIcon },
-            ];
+            if (ageValue < 18) return ChildWIcon;
+            if (ageValue < 26) return YouthWIcon;
+            if (ageValue < 36) return AdultWIcon;
+            if (ageValue < 51) return MiddleWIcon;
+            return SeniorWIcon;
         } else {
-            return [
-                { label: 'До 18 лет', icon: ChildMIcon },
-                { label: '18-25 лет', icon: YouthMIcon },
-                { label: '26-35 лет', icon: AdultMIcon },
-                { label: '36-50 лет', icon: MiddleMIcon },
-                { label: 'Старше 50 лет', icon: SeniorMIcon },
-            ];
+            if (ageValue < 18) return ChildMIcon;
+            if (ageValue < 26) return YouthMIcon;
+            if (ageValue < 36) return AdultMIcon;
+            if (ageValue < 51) return MiddleMIcon;
+            return SeniorMIcon;
         }
-    };
-
-    const handleNextAge = () => {
-        setAgeIndex((prev) => (prev + 1) % ageOptions.length);
-    };
-
-    const handlePrevAge = () => {
-        setAgeIndex((prev) => (prev - 1 + ageOptions.length) % ageOptions.length);
-    };
-
-    const confirmAge = () => {
-        handleAnswer(ageOptions[ageIndex].label);
     };
 
     useEffect(() => {
         if (step === ageStepIndex) {
-            const selectedGender = selectedAnswers[2] || 'Мужской';
-            const options = getAgeOptions(selectedGender);
-            const prevLabel = selectedAnswers[step];
-            const prevIndex = options.findIndex(o => o.label === prevLabel);
-
-            if (prevIndex >= 0) {
-                setAgeIndex(prevIndex);
-            } else {
-                setAgeIndex(0);
+            const prev = selectedAnswers[step];
+            if (prev) {
+                const parsed = parseInt(String(prev).replace(/\D+/g, ''), 10);
+                if (!isNaN(parsed)) {
+                    setAge(parsed);
+                }
             }
         }
     }, [step, selectedAnswers]);
 
     const handleAnswer = (answer) => {
-        console.log('Вы выбрали:', answer);
         setSelectedAnswers(prev => ({
             ...prev,
             [step]: answer
         }));
 
-        // Закрываем клавиатуру и режим ввода
         Keyboard.dismiss();
         setInputMode(false);
 
         if (step < totalSteps - 1) {
             setStep(step + 1);
         } else {
-            console.log('Анкета завершена!');
-            if (navigation) navigation.navigate('Calculation');
+            // Все шаги пройдены → переходим дальше, передавая raw-ответы
+            if (navigation) {
+                navigation.navigate('Calculation', { answers: selectedAnswers });
+            }
         }
     };
 
@@ -223,7 +226,7 @@ export default function QuestionScreen() {
         setters[type](val);
     };
 
-    const openInput = (type) => {
+    const openInput = () => {
         setInputValue('');
         setInputMode(true);
         setTimeout(() => inputRef.current?.focus(), 100);
@@ -237,24 +240,23 @@ export default function QuestionScreen() {
             Alert.alert('Ошибка', 'Пожалуйста, введите число');
             return false;
         }
-
         if (numValue < config.min || numValue > config.max) {
             Alert.alert('Ошибка', `Значение должно быть между ${config.min} и ${config.max} ${config.unit}`);
             return false;
         }
-
         if (!config.validate(numValue)) {
             Alert.alert('Ошибка', type === 'height' ? 'Должно быть целое число' : 'Не более одного знака после запятой');
             return false;
         }
-
         return true;
     };
 
     const handleInputConfirm = () => {
-        const type = step === heightStepIndex ? 'height' :
-            step === currentWeightStepIndex ? 'currentWeight' :
-                'desiredWeight';
+        const type = step === heightStepIndex
+            ? 'height'
+            : step === currentWeightStepIndex
+                ? 'currentWeight'
+                : 'desiredWeight';
 
         if (!validateInput(inputValue, type)) return;
 
@@ -325,17 +327,29 @@ export default function QuestionScreen() {
     const renderNumericInput = (type) => (
         <NumericInput
             type={type}
-            value={type === 'height' ? height : type === 'currentWeight' ? currentWeight : desiredWeight}
-            tempValue={type === 'height' ? tempHeight : type === 'currentWeight' ? tempCurrentWeight : tempDesiredWeight}
+            value={
+                type === 'height'
+                    ? height
+                    : type === 'currentWeight'
+                        ? currentWeight
+                        : desiredWeight
+            }
+            tempValue={
+                type === 'height'
+                    ? tempHeight
+                    : type === 'currentWeight'
+                        ? tempCurrentWeight
+                        : tempDesiredWeight
+            }
             config={numericInputConfig[type]}
             onValueChange={handleSliderChange(type)}
             onSlidingComplete={handleSliderComplete(type)}
-            onInputPress={() => openInput(type)}
+            onInputPress={openInput}
         />
     );
 
     const selectedGender = selectedAnswers[2] || 'Мужской';
-    const ageOptions = getAgeOptions(selectedGender);
+    const AgeIcon = getAgeIcon(selectedGender, age);
 
     return (
         <View style={styles.container}>
@@ -361,29 +375,33 @@ export default function QuestionScreen() {
 
             {step === ageStepIndex ? (
                 <View style={styles.ageContainer} {...panResponder.panHandlers}>
-                    {(() => {
-                        const AgeIcon = ageOptions[ageIndex].icon;
-                        return (
-                            <AgeIcon
-                                width={width * 0.5}
-                                height={width * 0.5}
-                                style={styles.ageImage}
-                            />
-                        );
-                    })()}
+                    <AgeIcon
+                        width={width * 0.5}
+                        height={width * 0.5}
+                        style={styles.ageImage}
+                    />
 
                     <View style={styles.ageLabelContainer}>
-                        <TouchableOpacity onPress={handlePrevAge} style={styles.arrowTouchable}>
+                        <TouchableOpacity
+                            onPress={() => setAge(prev => Math.max(1, prev - 1))}
+                            style={styles.arrowTouchable}
+                        >
                             <Text style={styles.ageArrow}>{'<'}</Text>
                         </TouchableOpacity>
-                        <Text style={styles.ageLabel}>{ageOptions[ageIndex].label}</Text>
-                        <TouchableOpacity onPress={handleNextAge} style={styles.arrowTouchable}>
+
+                        <Text style={styles.ageLabel}>{age} {getAgeLabel(age)}</Text>
+
+                        <TouchableOpacity
+                            onPress={() => setAge(prev => Math.min(100, prev + 1))}
+                            style={styles.arrowTouchable}
+                        >
                             <Text style={styles.ageArrow}>{'>'}</Text>
                         </TouchableOpacity>
                     </View>
+
                     <ConfirmButton
-                        selected={selectedAnswers[step] === ageOptions[ageIndex].label}
-                        onPress={confirmAge}
+                        selected={selectedAnswers[step] === String(age)}
+                        onPress={() => handleAnswer(String(age))}
                     />
                 </View>
             ) : steps[step].options ? (
@@ -553,37 +571,6 @@ const styles = StyleSheet.create({
         fontSize: moderateScale(20),
         fontWeight: '500',
         textAlign: 'center',
-    },
-    growButton: {
-        width: '95%',
-        backgroundColor: '#ffffff',
-        paddingVertical: verticalScale(16),
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        marginTop: scale(20),
-        borderRadius: scale(15),
-        marginBottom: verticalScale(27),
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 0 },
-        shadowOpacity: 0.15,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    selectedGrowButton: {
-        backgroundColor: '#3DA0EE',
-        shadowColor: '#3DA0EE',
-        shadowOpacity: 0.3,
-        shadowRadius: 6,
-        elevation: 6,
-    },
-    growButtonText: {
-        color: '#000',
-        fontSize: moderateScale(18),
-        fontWeight: '600',
-        textAlign: 'center',
-    },
-    selectedGrowButtonText: {
-        color: '#ffffff',
     },
     inputOverlay: {
         position: 'absolute',

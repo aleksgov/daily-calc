@@ -7,6 +7,8 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useFonts, NotoSans_500Medium, NotoSans_700Bold } from '@expo-google-fonts/noto-sans';
 import Sun from './components/Sun';
 
+import { calculateTDEE } from './components/calorie';
+
 const PROGRESS_CIRCLE_SIZE = scale(130);
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 

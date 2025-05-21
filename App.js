@@ -27,7 +27,7 @@ export default function App() {
     useEffect(() => {
         async function prepare() {
             try {
-                //await AsyncStorage.clear();
+                await AsyncStorage.clear();
                 await SplashScreen.preventAutoHideAsync();
                 await preloadAssets();
 
